@@ -167,7 +167,7 @@ body {
     /* Center Vertically */
     align-items: center;
     /* Center Horizontally */
-    padding-bottom: 120px;
+    padding-bottom: 180px;
     /* Space for input */
     transition: opacity 0.3s ease;
 }
@@ -229,7 +229,7 @@ body {
     /* Hidden by default */
     flex-direction: column;
     gap: 24px;
-    padding-bottom: 120px;
+    padding-bottom: 180px;
 }
 
 .chat-container.active {
