@@ -170,8 +170,8 @@ const collegeData = {
         </ul>
         <br>
         <strong>Need to talk to a human?</strong><br>
-        📞 Phone: +91 466 2370200 / 2371300<br>
-        📧 Email: principal@simat.ac.in / sreepathycollege@gmail.com
+        📞 Phone: 8944552211<br>
+        📧 Email: srpt@gmail.com
     `,
     location: `
         <strong>Where to Find Us: 📍</strong><br>
