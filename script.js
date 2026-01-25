@@ -634,8 +634,43 @@ function getBotResponse(input) {
         return collegeData[bestMatch.category];
     }
 
-    return collegeData.default;
+    // Smart Fallback / Closest Match Logic
+    if (bestMatch.score > 0.4) {
+        return `
+            <strong>I think I know what you're looking for! 😊</strong><br>
+            Are you asking about our <strong>${bestMatch.category.charAt(0).toUpperCase() + bestMatch.category.slice(1)}</strong>?<br><br>
+            ${collegeData[bestMatch.category]}
+            <br><i>Is there something more specific I can help with?</i>
+        `;
+    }
+
+    // Final Stage Escalatio: Direct Help
+    return `
+        <strong>I apologize, I want to make sure you get the most accurate information! 🙏</strong><br>
+        While I'm still learning, I couldn't find a perfect match for that query. <br><br>
+        <strong>Please connect with our Admission Experts directly:</strong><br>
+        📞 <strong>Helpline:</strong> 8944552211<br>
+        📧 <strong>Official Email:</strong> srpt@gmail.com<br><br>
+        <i>They are available to assist you and your family 24/7.</i>
+    `;
 }
+
+// ============================================
+// Background Cycling Manager
+// ============================================
+const bgStates = ['bg-state-1', 'bg-state-2', 'bg-state-3', 'bg-state-4'];
+let currentBgIndex = 0;
+
+function cycleBackground() {
+    document.body.classList.remove(...bgStates);
+    currentBgIndex = (currentBgIndex + 1) % bgStates.length;
+    document.body.classList.add(bgStates[currentBgIndex]);
+}
+
+// Start cycling every 15 seconds
+setInterval(cycleBackground, 15000);
+// Apply initial state
+document.body.classList.add(bgStates[0]);
 
 function addMessage(text, sender) {
     const msgDiv = document.createElement('div');

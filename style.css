@@ -23,7 +23,8 @@ body {
     font-family: var(--font-family);
     background-color: var(--bg-color);
     background-image: linear-gradient(rgba(10, 10, 12, 0.85), rgba(10, 10, 12, 0.9)), url('realistic_bg.png');
-    background-size: cover;
+    background-size: 400% 400%;
+    /* For dynamic scaling */
     background-position: center;
     background-attachment: fixed;
     color: var(--text-primary);
@@ -31,8 +32,40 @@ body {
     height: 100vh;
     overflow: hidden;
     position: relative;
-    /* Adding subtle animation for realism */
-    animation: fadeIn 1.5s ease-in-out;
+    transition: background 2s ease-in-out;
+    /* Smooth transition between states */
+    animation: gradient-move 30s ease infinite;
+}
+
+/* Moving Graphics States */
+.bg-state-1 {
+    background-image: linear-gradient(135deg, rgba(20, 20, 30, 0.9), rgba(40, 40, 60, 0.9)), url('realistic_bg.png');
+}
+
+.bg-state-2 {
+    background-image: linear-gradient(45deg, rgba(30, 10, 30, 0.9), rgba(60, 20, 60, 0.9)), url('realistic_bg.png');
+}
+
+.bg-state-3 {
+    background-image: linear-gradient(rgba(10, 30, 20, 0.95), rgba(20, 50, 40, 0.95)), url('realistic_bg.png');
+}
+
+.bg-state-4 {
+    background-image: linear-gradient(225deg, rgba(10, 10, 50, 0.9), rgba(30, 30, 80, 0.9)), url('realistic_bg.png');
+}
+
+@keyframes gradient-move {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 @keyframes fadeIn {
