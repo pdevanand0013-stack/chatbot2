@@ -37,14 +37,24 @@ const collegeData = {
                 <tbody>
                     <!-- B.Tech Courses -->
                     <tr>
-                        <td rowspan="5"><strong>B.Tech</strong></td>
+                        <td rowspan="7"><strong>B.Tech</strong></td>
                         <td>Computer Science (CSE)</td>
                         <td>₹50,000 / sem</td>
-                        <td rowspan="5">8 Sems</td>
+                        <td rowspan="7">8 Sems</td>
                         <td>₹4,00,000</td>
                     </tr>
                     <tr>
-                        <td>Artificial Intelligence (AI)</td>
+                        <td>AI & Data Science</td>
+                        <td>₹45,000 / sem</td>
+                        <td>₹3,60,000</td>
+                    </tr>
+                    <tr>
+                        <td>VLSI Design & Technology</td>
+                        <td>₹40,000 / sem</td>
+                        <td>₹3,20,000</td>
+                    </tr>
+                    <tr>
+                        <td>Advanced Communication</td>
                         <td>₹40,000 / sem</td>
                         <td>₹3,20,000</td>
                     </tr>
@@ -131,10 +141,21 @@ const collegeData = {
     hostel: `
         <strong>Your Home Away From Home! 🏠</strong>
         <ul class="bot-list">
-            <li><strong>Single Room:</strong> $2,000/year - <i>For your private space.</i></li>
-            <li><strong>Double Sharing:</strong> $1,500/year - <i>Best for making besties!</i></li>
+            <li><strong>Modern Hostel:</strong> Separate facilities for boys and girls with safe, comfortable rooms.</li>
+            <li><strong>Digital Library:</strong> Access to 10,000+ books and indexed journals (8 AM - 6 PM).</li>
+            <li><strong>Smart Campus:</strong> 52 Mbps high-speed internet and advanced computer labs.</li>
+            <li><strong>Modern Amenities:</strong> 1200-seat auditorium, air-conditioned seminar halls, and a subsidized cafeteria.</li>
         </ul>
-        <br>We have high-speed WiFi, a hygienic Mess, and a Gym to keep you fit!
+        <br>We strive to provide an environment where you can focus entirely on your growth!
+    `,
+    location: `
+        <strong>Where to Find Us: 📍</strong><br>
+        Sreepathy Institute of Management and Technology (SIMAT) is located in a serene, academic-friendly environment.<br><br>
+        <strong>Address:</strong><br>
+        Vavanoor P.O, Koottanad (Via),<br>
+        Pattambi, Palakkad District,<br>
+        Kerala, India - 679533.<br><br>
+        We're easily accessible via our college bus network from various main centers!
     `,
     default: `
         Oops! I didn't quite catch that. 🤔<br>
@@ -149,8 +170,17 @@ const collegeData = {
         </ul>
         <br>
         <strong>Need to talk to a human?</strong><br>
-        📞 Phone: 8944552211<br>
-        📧 Email: srpt@gmail.com
+        📞 Phone: +91 466 2370200 / 2371300<br>
+        📧 Email: principal@simat.ac.in / sreepathycollege@gmail.com
+    `,
+    location: `
+        <strong>Where to Find Us: 📍</strong><br>
+        Sreepathy Institute of Management and Technology (SIMAT) is located in a serene, academic-friendly environment.<br><br>
+        <strong>Address:</strong><br>
+        Vavanoor P.O, Koottanad (Via),<br>
+        Pattambi, Palakkad District,<br>
+        Kerala, India - 679533.<br><br>
+        We're easily accessible via our college bus network from various main centers!
     `,
     greetings: ["hi", "hello", "hey", "hola", "greetings", "sup", "yo"],
     greetingResponse: "Welcome to SREEPATHY! 👋 I'm your dedicated Admission Assistant. Whether you're a curious student or a supporting parent, I'm here to ensure your journey to our campus is smooth and exciting. How can I help you navigate your future today?",
@@ -529,7 +559,8 @@ function getBotResponse(input) {
         eligibility: /\b(eligible|eligibility|criteria|marks|percentage|cutoff|score|grade)\b/i,
         staff: /\b(staff|faculty|teacher|professor|hod|dean|principal)\b/i,
         transport: /\b(bus|transport|route|travel|commute|vehicle)\b/i,
-        hostel: /\b(hostel|accommodation|room|stay|living|dorm)\b/i
+        hostel: /\b(hostel|accommodation|room|stay|living|dorm|auditorium|cafeteria|library|internet|wifi)\b/i,
+        location: /\b(location|address|where|pattambi|palakkad|vavanoor|place|map|find)\b/i
     };
 
     if (patterns.admission.test(input)) return collegeData.admission;
@@ -539,6 +570,7 @@ function getBotResponse(input) {
     if (patterns.staff.test(input)) return collegeData.staff;
     if (patterns.transport.test(input)) return collegeData.bus;
     if (patterns.hostel.test(input)) return collegeData.hostel;
+    if (patterns.location.test(input)) return collegeData.location;
 
     return collegeData.default;
 }
