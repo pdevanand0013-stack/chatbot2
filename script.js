@@ -623,7 +623,12 @@ function getBotResponse(input) {
         for (const keyword of keywords) {
             // Direct NLP check
             if (doc.has(keyword)) {
-                return collegeData[category];
+                // Map category to correct data key
+                let dataKey = category;
+                if (category === 'courses') dataKey = 'fees';
+                if (category === 'transport') dataKey = 'bus';
+
+                return collegeData[dataKey] || collegeData.default;
             }
 
             // Fuzzy match check for each word in input
@@ -637,15 +642,23 @@ function getBotResponse(input) {
     }
 
     if (bestMatch.score > 0.8) {
-        return collegeData[bestMatch.category];
+        let dataKey = bestMatch.category;
+        if (dataKey === 'courses') dataKey = 'fees';
+        if (dataKey === 'transport') dataKey = 'bus';
+
+        return collegeData[dataKey] || collegeData.default;
     }
 
     // Smart Fallback / Closest Match Logic
     if (bestMatch.score > 0.4) {
+        let dataKey = bestMatch.category;
+        if (dataKey === 'courses') dataKey = 'fees';
+        if (dataKey === 'transport') dataKey = 'bus';
+
         return `
             <strong>I think I know what you're looking for! 😊</strong><br>
             Are you asking about our <strong>${bestMatch.category.charAt(0).toUpperCase() + bestMatch.category.slice(1)}</strong>?<br><br>
-            ${collegeData[bestMatch.category]}
+            ${collegeData[dataKey]}
             <br><i>Is there something more specific I can help with?</i>
         `;
     }
