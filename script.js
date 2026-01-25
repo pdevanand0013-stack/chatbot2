@@ -123,14 +123,11 @@ const collegeData = {
         Our team is always here to support you if you have unique circumstances!
     `,
     staff: `
-        <strong>Meet Our Mentors & Leaders: 👨‍🏫</strong>
+        <strong>Our Leadership: 👨‍🏫</strong>
         <ul class="bot-list">
             <li><strong>Principal:</strong> Prof. (Dr.) S.P. Subramanian (M.Tech., PhD) - <i>Leading with vision!</i></li>
-            <li><strong>Dr. A. Sharma:</strong> Dean of Engineering</li>
-            <li><strong>Prof. S. Gupta:</strong> HOD Computer Science</li>
-            <li><strong>Dr. R. Verma:</strong> Head of Management Studies</li>
         </ul>
-        Our faculty is super distinct and always ready to help you out!
+        Our leadership is dedicated to excellence in engineering education!
     `,
     bus: `
         <strong>Need a Ride? We've Got You Covered! 🚌</strong><br>
