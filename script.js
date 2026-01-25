@@ -10,8 +10,8 @@ const collegeData = {
         Admissions for the 2026-2027 academic year are officially open. We aim to make this process as simple as possible for you.<br><br>
         <strong>📅 Important Deadlines:</strong>
         <ul>
-            <li><strong>B.Tech Admissions:</strong> Apply by <strong>May 30th, 2026</strong>.</li>
-            <li><strong>Lateral Entry:</strong> Applications close on <strong>June 15th, 2026</strong>.</li>
+            <li><strong>Undergraduate (B.Tech/BCA/B.Sc):</strong> Apply by <strong>May 30th, 2026</strong>.</li>
+            <li><strong>Postgraduate (MBA):</strong> Applications close on <strong>June 15th, 2026</strong>.</li>
         </ul>
         <br>
         <strong>📝 Admission Procedure:</strong>
@@ -73,6 +73,29 @@ const collegeData = {
                         <td>₹25,000 / sem</td>
                         <td>₹2,00,000</td>
                     </tr>
+                    
+                    <!-- BCA -->
+                    <tr>
+                        <td><strong>BCA</strong></td>
+                        <td>Computer Applications</td>
+                        <td>₹25,000 / sem</td>
+                        <td>6 Sems</td>
+                        <td>₹1,50,000</td>
+                    </tr>
+
+                    <!-- B.Sc Courses -->
+                    <tr>
+                        <td rowspan="6"><strong>B.Sc</strong></td>
+                        <td>Computer Science</td>
+                        <td rowspan="6">₹20,000 / year</td>
+                        <td rowspan="6">3 Years</td>
+                        <td rowspan="6">₹60,000</td>
+                    </tr>
+                    <tr><td>Mathematics</td></tr>
+                    <tr><td>Physics</td></tr>
+                    <tr><td>Chemistry</td></tr>
+                    <tr><td>English</td></tr>
+                    <tr><td>Malayalam</td></tr>
                 </tbody>
             </table>
         </div>
@@ -94,6 +117,8 @@ const collegeData = {
                 </ul>
                 <i>We know you've worked hard—let's make it count! 💪</i>
             </li>
+            <li><strong>MBA:</strong> Graduation (50%+) and a valid CAT/MAT score.</li>
+            <li><strong>BCA & B.Sc:</strong> A minimum of 60% in your qualifying subjects.</li>
         </ul>
         Our team is always here to support you if you have unique circumstances!
     `,
@@ -151,9 +176,9 @@ const collegeData = {
         But hey, I can tell you about:
         <ul class="bot-list">
             <li>Admission (or type "Apply Now")</li>
-            <li>Engineering Fee Structures</li>
-            <li>B.Tech Eligibility</li>
-            <li>Our Principal / Leadership</li>
+            <li>Fee Structures</li>
+            <li>Eligibility Criteria</li>
+            <li>Our Awesome Faculty</li>
             <li>Bus / Transport</li>
             <li>Hostel Life</li>
         </ul>
@@ -167,7 +192,7 @@ const collegeData = {
 
     // Application Flow Messages
     askName: "Awesome choice! Let's get things rolling. What's your <strong>Full Name</strong>?",
-    askCourse: (name) => `Great to meet you, ${name}! 🌟 Which B.Tech specialization are you interested in?<br>(e.g., CSE, AI & DS, EEE)`,
+    askCourse: (name) => `Great to meet you, ${name}! 🌟 Which course are you dreaming of?<br>(e.g., B.Tech, MBA, B.Sc)`,
     askEmail: "Got it! Almost done. Just drop your <strong>Email Address</strong> so we can send you the details.",
     confirmApp: (name, course, email) => `
         <strong>🎉 Application Successful!</strong><br>
@@ -209,7 +234,7 @@ let hasStartedChat = false;
 const flowMessages = {
     askName: "That's wonderful! I'm so happy to help you start your application. 📝<br>To begin this exciting journey, may I please have your <strong>Full Name</strong>?",
     askPhone: (name) => `It's truly a pleasure to meet you, ${name}! 😊<br>Could you please provide your <strong>Phone Number</strong>? This helps our counselors reach out if you need any extra support.`,
-    askCourse: "Fantastic! Which B.Tech program are you most passionate about?<br>(e.g., <strong>CSE</strong>, <strong>AI & Data Science</strong>, <strong>Mechanical</strong>)",
+    askCourse: "Fantastic! Which program are you most passionate about?<br>(e.g., <strong>B.Tech CSE</strong>, <strong>BCA</strong>, <strong>B.Sc Physics</strong>)",
     askPCM: "Great choice! For the B.Tech program, we just need to quickly verify your academic eligibility. 📊<br>What was your <strong>PCM Percentage</strong> in +2? (e.g., 78)",
     askKEAM: "Excellent! And what was your <strong>KEAM/JEE Rank</strong>?<br>(e.g., 15000)<br><small>We welcomes students with ranks up to 50,000!</small>",
     askScholarship: `
@@ -234,10 +259,10 @@ const flowMessages = {
         <br>Once uploaded, type <strong>"done"</strong> to proceed.
     `,
     notEligible: (percent) => `
-        <strong>Minimum Requirement Not Met 😔</strong><br>
-        With ${percent}% in PCM, you are slightly below the 75% requirement for our B.Tech programs.<br>
-        Please contact our admission helpline to discuss any special consideration or lateral entry options!<br>
-        📞 8944552211
+        <strong>Sorry! 😔</strong><br>
+        With ${percent}% in PCM, you don't meet the 75% requirement for B.Tech.<br>
+        But don't worry! You can explore <strong>BCA</strong> or <strong>B.Sc</strong> courses.<br>
+        Type <strong>"Apply Now"</strong> to try a different course!
     `,
     confirmApp: (details) => `
         <strong>🎉 Application Successful!</strong><br>
@@ -581,7 +606,7 @@ function getBotResponse(input) {
     const categories = {
         admission: ['admission', 'apply', 'enroll', 'process', 'procedure', 'deadline', 'date'],
         fees: ['fee', 'cost', 'price', 'payment', 'money', 'scholarship'],
-        courses: ['course', 'program', 'degree', 'btech', 'engineering', 'branch'],
+        courses: ['course', 'program', 'degree', 'btech', 'bca', 'bsc', 'mba', 'science', 'engineering'],
         eligibility: ['eligible', 'marks', 'percentage', 'criteria', 'rank', 'cutoff'],
         staff: ['principal', 'leadership', 'head', 'subramanian'],
         transport: ['bus', 'transport', 'route', 'travel', 'commute', 'vehicle'],
