@@ -167,8 +167,7 @@ body {
     /* Center Vertically */
     align-items: center;
     /* Center Horizontally */
-    padding-bottom: 180px;
-    /* Space for input */
+    padding: 40px 24px;
     transition: opacity 0.3s ease;
 }
 
@@ -229,7 +228,7 @@ body {
     /* Hidden by default */
     flex-direction: column;
     gap: 24px;
-    padding-bottom: 180px;
+    padding-bottom: 40px;
 }
 
 .chat-container.active {
@@ -301,13 +300,9 @@ body {
 
 /* Input Area */
 .bottom-input-area {
-    position: absolute;
-    bottom: 0;
-    left: 0;
     width: 100%;
     padding: 24px 20%;
     background: var(--bg-color);
-    /* Cover content behind */
 }
 
 .input-box {
