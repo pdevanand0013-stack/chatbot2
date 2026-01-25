@@ -606,7 +606,8 @@ function getBotResponse(input) {
         staff: ['staff', 'faculty', 'teacher', 'professor', 'hod', 'dean', 'principal'],
         transport: ['bus', 'transport', 'route', 'travel', 'commute', 'vehicle'],
         hostel: ['hostel', 'room', 'stay', 'accommodation', 'auditorium', 'library', 'internet'],
-        location: ['location', 'address', 'where', 'pattambi', 'palakkad', 'vavanoor']
+        location: ['location', 'address', 'where', 'pattambi', 'palakkad', 'vavanoor'],
+        photos: ['photo', 'image', 'picture', 'campus', 'look', 'gallery', 'see', 'view']
     };
 
     // Calculate best match score across all categories
