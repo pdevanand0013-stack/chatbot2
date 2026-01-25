@@ -155,7 +155,24 @@ const collegeData = {
         Vavanoor P.O, Koottanad (Via),<br>
         Pattambi, Palakkad District,<br>
         Kerala, India - 679533.<br><br>
-        We're easily accessible via our college bus network from various main centers!
+        <div class="visual-gallery">
+            <div class="visual-card">
+                <span class="visual-label">Our Campus Location</span>
+                <img src="college_campus.png" alt="Sreepathy Institute Location">
+            </div>
+        </div>
+        <br>We're easily accessible via our college bus network from various main centers!
+    `,
+    photos: `
+        <strong>Behold Our Beautiful Campus! 📸✨</strong><br>
+        Take an authentic look at the Sreepathy Institute infrastructure:<br><br>
+        <div class="visual-gallery">
+            <div class="visual-card">
+                <span class="visual-label">Main Building & Greenery</span>
+                <img src="college_campus.png" alt="Sreepathy Main Campus Building">
+            </div>
+        </div>
+        <br><i>Is there any specific facility you'd like to know more about?</i>
     `,
     default: `
         Oops! I didn't quite catch that. 🤔<br>
@@ -172,15 +189,6 @@ const collegeData = {
         <strong>Need to talk to a human?</strong><br>
         📞 Phone: 8944552211<br>
         📧 Email: srpt@gmail.com
-    `,
-    location: `
-        <strong>Where to Find Us: 📍</strong><br>
-        Sreepathy Institute of Management and Technology (SIMAT) is located in a serene, academic-friendly environment.<br><br>
-        <strong>Address:</strong><br>
-        Vavanoor P.O, Koottanad (Via),<br>
-        Pattambi, Palakkad District,<br>
-        Kerala, India - 679533.<br><br>
-        We're easily accessible via our college bus network from various main centers!
     `,
     greetings: ["hi", "hello", "hey", "hola", "greetings", "sup", "yo"],
     greetingResponse: "Welcome to SREEPATHY! 👋 I'm your dedicated Admission Assistant. Whether you're a curious student or a supporting parent, I'm here to ensure your journey to our campus is smooth and exciting. How can I help you navigate your future today?",
