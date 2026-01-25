@@ -218,7 +218,8 @@ const collegeData = {
                     </table>
                 </div>
                 
-                <p>See you on campus!</p>
+                <p>Our college representatives will call you if necessary.</p>
+                <p>Thank you for spending your valuable time here.</p>
                 <p>Best Regards,<br><strong>SRPT Admissions Team</strong></p>
             </div>
         </div>
