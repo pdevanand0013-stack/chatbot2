@@ -548,29 +548,91 @@ function handleResponse(text) {
     }
 }
 
-function getBotResponse(input) {
-    if (collegeData.greetings.some(g => input === g)) return collegeData.greetingResponse;
+// String Similarity (Levenshtein Distance) for Fuzzy Matching
+function getSimilarity(s1, s2) {
+    let longer = s1.toLowerCase();
+    let shorter = s2.toLowerCase();
+    if (longer.length < shorter.length) {
+        let tmp = longer;
+        longer = shorter;
+        shorter = tmp;
+    }
+    let longerLength = longer.length;
+    if (longerLength === 0) return 1.0;
+    return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+}
 
-    // Regex Patterns for better matching
-    const patterns = {
-        admission: /\b(admission|admissions|apply|application|enroll|enrollment|deadline|date|seat|process)\b/i,
-        fees: /\b(fee|fees|cost|price|structure|payment|expensive|cheap)\b/i,
-        courses: /\b(course|courses|program|programs|degree|degrees|btech|b\.tech|bca|bsc|b\.sc|mba|computer science|civil|mechanical|ai|artificial intelligence)\b/i,
-        eligibility: /\b(eligible|eligibility|criteria|marks|percentage|cutoff|score|grade)\b/i,
-        staff: /\b(staff|faculty|teacher|professor|hod|dean|principal)\b/i,
-        transport: /\b(bus|transport|route|travel|commute|vehicle)\b/i,
-        hostel: /\b(hostel|accommodation|room|stay|living|dorm|auditorium|cafeteria|library|internet|wifi)\b/i,
-        location: /\b(location|address|where|pattambi|palakkad|vavanoor|place|map|find)\b/i
+function editDistance(s1, s2) {
+    let costs = new Array();
+    for (let i = 0; i <= s1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= s2.length; j++) {
+            if (i === 0) costs[j] = j;
+            else if (j > 0) {
+                let newValue = costs[j - 1];
+                if (s1.charAt(i - 1) !== s2.charAt(j - 1))
+                    newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                costs[j - 1] = lastValue;
+                lastValue = newValue;
+            }
+        }
+        if (i > 0) costs[s2.length] = lastValue;
+    }
+    return costs[s2.length];
+}
+
+function getBotResponse(input) {
+    const doc = nlp(input.toLowerCase());
+
+    // Check for Greetings/Small Talk with NLP
+    if (doc.has('~greeting~') || doc.has('(hi|hello|hey|hola|yo|sup)')) {
+        return collegeData.greetingResponse;
+    }
+
+    if (doc.has('(how are you|hows it going|how r u)')) {
+        return "I'm doing great, thank you for asking! 😊 I'm always excited to help families find their home at SREEPATHY. How can I assist you today?";
+    }
+
+    if (doc.has('(who are you|what are you|your name)')) {
+        return "I'm your intelligent virtual assistant for SREEPATHY Admissions! 🤖 I'm here 24/7 to provide instant and accurate information about our college.";
+    }
+
+    // Keyword categories for mapping
+    const categories = {
+        admission: ['admission', 'apply', 'enroll', 'process', 'procedure', 'deadline', 'date'],
+        fees: ['fee', 'cost', 'price', 'payment', 'money', 'scholarship'],
+        courses: ['course', 'program', 'degree', 'btech', 'bca', 'bsc', 'mba', 'science', 'engineering'],
+        eligibility: ['eligible', 'marks', 'percentage', 'criteria', 'rank', 'cutoff'],
+        staff: ['staff', 'faculty', 'teacher', 'professor', 'hod', 'dean', 'principal'],
+        transport: ['bus', 'transport', 'route', 'travel', 'commute', 'vehicle'],
+        hostel: ['hostel', 'room', 'stay', 'accommodation', 'auditorium', 'library', 'internet'],
+        location: ['location', 'address', 'where', 'pattambi', 'palakkad', 'vavanoor']
     };
 
-    if (patterns.admission.test(input)) return collegeData.admission;
-    if (patterns.fees.test(input)) return collegeData.fees;
-    if (patterns.courses.test(input)) return collegeData.fees; // Show fees table for course queries
-    if (patterns.eligibility.test(input)) return collegeData.eligibility;
-    if (patterns.staff.test(input)) return collegeData.staff;
-    if (patterns.transport.test(input)) return collegeData.bus;
-    if (patterns.hostel.test(input)) return collegeData.hostel;
-    if (patterns.location.test(input)) return collegeData.location;
+    // Calculate best match score across all categories
+    let bestMatch = { category: 'default', score: 0 };
+    const words = input.toLowerCase().split(/\s+/);
+
+    for (const [category, keywords] of Object.entries(categories)) {
+        for (const keyword of keywords) {
+            // Direct NLP check
+            if (doc.has(keyword)) {
+                return collegeData[category];
+            }
+
+            // Fuzzy match check for each word in input
+            for (const word of words) {
+                const score = getSimilarity(word, keyword);
+                if (score > 0.8 && score > bestMatch.score) {
+                    bestMatch = { category, score };
+                }
+            }
+        }
+    }
+
+    if (bestMatch.score > 0.8) {
+        return collegeData[bestMatch.category];
+    }
 
     return collegeData.default;
 }
