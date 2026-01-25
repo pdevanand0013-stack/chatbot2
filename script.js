@@ -783,3 +783,71 @@ function verifyDocumentsWithOCR() {
 
     return verificationStatus;
 }
+
+// ============================================
+// Web Speech API Integration (Voice Messaging)
+// ============================================
+
+const micBtn = document.getElementById('mic-btn');
+let isRecording = false;
+
+// Initialize Speech Recognition
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    micBtn.addEventListener('click', () => {
+        if (!isRecording) {
+            startRecording();
+        } else {
+            stopRecording();
+        }
+    });
+
+    function startRecording() {
+        recognition.start();
+        isRecording = true;
+        micBtn.classList.add('mic-active');
+        userInput.placeholder = "Listening...";
+    }
+
+    function stopRecording() {
+        recognition.stop();
+        isRecording = false;
+        micBtn.classList.remove('mic-active');
+        userInput.placeholder = "Enter a prompt here";
+    }
+
+    recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userInput.value = transcript;
+        stopRecording();
+
+        // Slightly delay to allow user to see text before sending
+        setTimeout(() => {
+            processMessage();
+        }, 500);
+    };
+
+    recognition.onspeechend = () => {
+        stopRecording();
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        stopRecording();
+        if (event.error === 'not-allowed') {
+            addMessage("⚠️ Microphone access denied. Please allow permissions to use voice search.", 'bot');
+        }
+    };
+
+} else {
+    // Hide mic button if not supported
+    micBtn.style.display = 'none';
+    console.warn("Speech recognition not supported in this browser.");
+}
