@@ -6,13 +6,20 @@ const sendBtn = document.getElementById('send-btn');
 // College Data (Same as before)
 const collegeData = {
     admission: `
-        <strong>Hey there! Ready to join us? 🎓</strong><br>
-        Admissions are full swing for the 2026-2027 batch! We'd love to have you on campus.<br><br>
+        <strong>We'd be honored to have you join our college family! 🎓</strong><br>
+        Admissions for the 2026-2027 academic year are officially open. We aim to make this process as simple as possible for you.<br><br>
+        <strong>📅 Important Deadlines:</strong>
         <ul>
-            <li><strong>Undergraduate:</strong> Hurry up! Applications close on May 30th.</li>
-            <li><strong>Postgraduate:</strong> You have until June 15th to apply.</li>
+            <li><strong>Undergraduate (B.Tech/BCA/B.Sc):</strong> Apply by <strong>May 30th, 2026</strong>.</li>
+            <li><strong>Postgraduate (MBA):</strong> Applications close on <strong>June 15th, 2026</strong>.</li>
         </ul>
-        <br>Just type <strong>"Apply Now"</strong> and I'll help you get started with the process instantly!
+        <br>
+        <strong>📝 Admission Procedure:</strong>
+        1. Select your desired course.<br>
+        2. Verify your eligibility (I can help with that!).<br>
+        3. Fill out the application form (just type <strong>"Apply Now"</strong>).<br>
+        4. Upload your documents for instant verification.<br>
+        <br>Don't worry, I'll be with you every step of the way! Just type <strong>"Apply Now"</strong> to begin.
     `,
     fees: `
         <strong>Here's the Investment for Your Future: 💰</strong>
@@ -146,7 +153,7 @@ const collegeData = {
         📧 Email: srpt@gmail.com
     `,
     greetings: ["hi", "hello", "hey", "hola", "greetings", "sup", "yo"],
-    greetingResponse: "Hey there! 👋 I'm your virtual campus buddy. Ask me anything about admissions, courses, or campus life!",
+    greetingResponse: "Welcome to SREEPATHY! 👋 I'm your dedicated Admission Assistant. Whether you're a curious student or a supporting parent, I'm here to ensure your journey to our campus is smooth and exciting. How can I help you navigate your future today?",
 
     // Application Flow Messages
     askName: "Awesome choice! Let's get things rolling. What's your <strong>Full Name</strong>?",
@@ -190,11 +197,11 @@ let hasStartedChat = false;
 
 // Application Flow Messages
 const flowMessages = {
-    askName: "Let's get started with your application! 📝<br>What is your <strong>Full Name</strong>?",
-    askPhone: (name) => `Nice to meet you, ${name}! 👋<br>Please provide your <strong>Phone Number</strong> so we can contact you.`,
-    askCourse: "Which course are you interested in?<br>(e.g., <strong>B.Tech CSE</strong>, <strong>BCA</strong>, <strong>B.Sc Physics</strong>)",
-    askPCM: "For B.Tech, we need to verify your eligibility. 📊<br>What was your <strong>PCM Percentage</strong> in +2? (Enter just the number, e.g., 78)",
-    askKEAM: "Great! Now enter your <strong>KEAM/JEE Rank</strong>.<br>(Enter just the number, e.g., 15000)<br><small>We accept students up to rank 50,000</small>",
+    askName: "That's wonderful! I'm so happy to help you start your application. 📝<br>To begin this exciting journey, may I please have your <strong>Full Name</strong>?",
+    askPhone: (name) => `It's truly a pleasure to meet you, ${name}! 😊<br>Could you please provide your <strong>Phone Number</strong>? This helps our counselors reach out if you need any extra support.`,
+    askCourse: "Fantastic! Which program are you most passionate about?<br>(e.g., <strong>B.Tech CSE</strong>, <strong>BCA</strong>, <strong>B.Sc Physics</strong>)",
+    askPCM: "Great choice! For the B.Tech program, we just need to quickly verify your academic eligibility. 📊<br>What was your <strong>PCM Percentage</strong> in +2? (e.g., 78)",
+    askKEAM: "Excellent! And what was your <strong>KEAM/JEE Rank</strong>?<br>(e.g., 15000)<br><small>We welcomes students with ranks up to 50,000!</small>",
     askScholarship: `
         Do you have any existing <strong>Scholarship</strong>? 🎓<br>
         <ul>
