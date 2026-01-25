@@ -92,25 +92,25 @@ const collegeData = {
         <br><small><i>Note: Hostel and transport fees are separate. Don't worry, we offer installment options too!</i></small>
     `,
     eligibility: `
-        <strong>Let's Check Your Eligibility! ✅</strong><br>
-        Here's what you need to join our programs:<br>
+        <strong>Let's find the perfect fit for you! ✅</strong><br>
+        We value merit and potential. Here is what we look for in our future students:<br>
         <ul>
             <li><strong>B.Tech:</strong>
                 <ul>
-                    <li>75% or above in PCM (Physics, Chemistry, Maths) in +2</li>
-                    <li><strong>Documents Required:</strong>
+                    <li>Minimum 75% in PCM (Physics, Chemistry, Maths) in your +2 exams.</li>
+                    <li><strong>Required Documentation:</strong>
                         <ul>
-                            <li>+2 Certificate</li>
-                            <li>+2 Marksheet</li>
-                            <li>KEAM or JEE Rank List</li>
+                            <li>+2 Certificate & Marksheet</li>
+                            <li>A valid KEAM or JEE Rank List</li>
                         </ul>
                     </li>
                 </ul>
-                <i>You got this! 💪</i>
+                <i>We know you've worked hard—let's make it count! 💪</i>
             </li>
-            <li><strong>MBA:</strong> Graduation (50%) + CAT/MAT Score.</li>
-            <li><strong>B.Sc:</strong> Just 60% in your Science subjects.</li>
+            <li><strong>MBA:</strong> Graduation (50%+) and a valid CAT/MAT score.</li>
+            <li><strong>BCA & B.Sc:</strong> A minimum of 60% in your qualifying subjects.</li>
         </ul>
+        Our team is always here to support you if you have unique circumstances!
     `,
     staff: `
         <strong>Meet Our Mentors & Leaders: 👨‍🏫</strong>
