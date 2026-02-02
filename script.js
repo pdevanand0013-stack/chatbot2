@@ -21,6 +21,79 @@ const collegeData = {
         4. Upload your documents for instant verification.<br>
         <br>Don't worry, I'll be with you every step of the way! Just type <strong>"Apply Now"</strong> to begin.
     `,
+    feesBTech: `
+        <strong>B.Tech Fee Structure (Per Semester): 🎓</strong>
+        <div class="table-container">
+            <table class="bot-table">
+                <thead>
+                    <tr><th>Specialization</th><th>Fee</th><th>Total (8 Sem)</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>Computer Science (CSE)</td><td>₹50,000</td><td>₹4,00,000</td></tr>
+                    <tr><td>AI & Data Science</td><td>₹45,000</td><td>₹3,60,000</td></tr>
+                    <tr><td>VLSI Design</td><td>₹40,000</td><td>₹3,20,000</td></tr>
+                    <tr><td>Adv. Communication</td><td>₹40,000</td><td>₹3,20,000</td></tr>
+                    <tr><td>EEE</td><td>₹30,000</td><td>₹2,40,000</td></tr>
+                    <tr><td>Civil / Mechanical</td><td>₹25,000</td><td>₹2,00,000</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <br><small><i>Scholarships available for high achievers!</i></small>
+    `,
+    feesBCA: `
+        <strong>BCA Fee Structure: 💻</strong>
+        <div class="table-container">
+            <table class="bot-table">
+                <thead>
+                    <tr><th>Course</th><th>Fee / Sem</th><th>Duration</th><th>Total Cost</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>BCA</strong><br><small>Computer Applications</small></td>
+                        <td>₹25,000</td>
+                        <td>6 Sems</td>
+                        <td>₹1,50,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `,
+    feesBSc: `
+        <strong>B.Sc Fee Structure: 🔬</strong>
+        <div class="table-container">
+            <table class="bot-table">
+                <thead>
+                    <tr><th>Specializations</th><th>Fee / Year</th><th>Duration</th><th>Total Cost</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>comp. Sci, Maths,<br>Physics, Chemistry,<br>English, Malayalam</td>
+                        <td>₹20,000</td>
+                        <td>3 Years</td>
+                        <td>₹60,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `,
+    feesMBA: `
+        <strong>MBA Fee Structure: 📈</strong>
+        <div class="table-container">
+            <table class="bot-table">
+                <thead>
+                    <tr><th>Course</th><th>Fee / Sem</th><th>Duration</th><th>Total Cost</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>MBA</strong><br><small>Finance, HR, Marketing</small></td>
+                        <td>₹40,000</td>
+                        <td>4 Sems</td>
+                        <td>₹1,60,000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    `,
     fees: `
         <strong>Here's the Investment for Your Future: 💰</strong>
         <div class="table-container">
@@ -381,6 +454,32 @@ function handleResponse(text) {
 
     // State Machine
     if (chatState === "IDLE") {
+        const lowerText = text.toLowerCase();
+
+        // INTERCEPT: Check for "Fee" queries to enforce multi-turn conversation
+        // This runs before the NLP matching to ensure we catch vague "fees" requests
+        if (/\b(fee|fees|cost|structure|payment|price|money)\b/.test(lowerText)) {
+            // Check if specific course is already mentioned
+            if (/\b(b\.?tech|engineering|cse|civil|mech|eee|vlsi|ai)\b/.test(lowerText)) {
+                addMessage(collegeData.feesBTech, 'bot');
+                return;
+            } else if (/\b(bca)\b/.test(lowerText)) {
+                addMessage(collegeData.feesBCA, 'bot');
+                return;
+            } else if (/\b(bsc|science)\b/.test(lowerText)) {
+                addMessage(collegeData.feesBSc, 'bot');
+                return;
+            } else if (/\b(mba|management|pg)\b/.test(lowerText)) {
+                addMessage(collegeData.feesMBA, 'bot');
+                return;
+            } else {
+                // Vague Query -> Ask Follow-up
+                chatState = "AWAITING_COURSE_FOR_FEES";
+                addMessage("Which course are you asking about — <strong>B.Tech</strong>, <strong>BCA</strong>, <strong>B.Sc</strong>, or <strong>MBA</strong>?", 'bot');
+                return;
+            }
+        }
+
         const response = getBotResponse(lowerText);
         addMessage(response, 'bot');
 
@@ -388,6 +487,35 @@ function handleResponse(text) {
         if (/\b(apply|enroll|registration|form|admission procedure|procedure)\b/.test(lowerText)) {
             chatState = "AWAITING_NAME";
             setTimeout(() => addMessage(flowMessages.askName, 'bot'), 500);
+        }
+    }
+    else if (chatState === "AWAITING_COURSE_FOR_FEES") {
+        const lowerText = text.toLowerCase();
+
+        if (/\b(b\.?tech|engineering|cse|civil|mech|eee|vlsi|ai)\b/.test(lowerText)) {
+            addMessage(collegeData.feesBTech, 'bot');
+            chatState = "IDLE";
+        } else if (/\b(bca)\b/.test(lowerText)) {
+            addMessage(collegeData.feesBCA, 'bot');
+            chatState = "IDLE";
+        } else if (/\b(bsc|science)\b/.test(lowerText)) {
+            addMessage(collegeData.feesBSc, 'bot');
+            chatState = "IDLE";
+        } else if (/\b(mba|management|pg)\b/.test(lowerText)) {
+            addMessage(collegeData.feesMBA, 'bot');
+            chatState = "IDLE";
+        } else {
+            // Fallback if they type something unrelated, but we'll try to steer them back
+            // OR we can just reset to IDLE and process it as a new message if it doesn't match a course.
+            // But let's try one more re-prompt or treat it as specific content.
+
+            // Let's assume if it's not a course, they matched nothing.
+            // But maybe they said "cancel" - handled at top of handleResponse.
+
+            chatState = "IDLE";
+            // Process as normal message in case they changed topic
+            const response = getBotResponse(lowerText);
+            addMessage(response, 'bot');
         }
     }
     else if (chatState === "AWAITING_NAME") {
