@@ -54,6 +54,6 @@ This project is a sophisticated AI-powered chatbot designed to streamline the ad
 ---
 
 ## 👨‍💻 Developed By
-**Name:** Gopika
+**Name:** Devanand
 **Course:** [Your Course Name]
 **Institution:** Sreepathy Institute of Management and Technology
