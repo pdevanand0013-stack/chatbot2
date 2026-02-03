@@ -922,21 +922,77 @@ if (fileUploadInput) {
 }
 
 // OCR Processing Function using Tesseract.js
+// OCR Processing Function using Tesseract.js
 async function processDocumentOCR(imageFile) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            try {
-                const worker = await Tesseract.createWorker('eng');
-                const { data } = await worker.recognize(e.target.result);
-                await worker.terminate();
-                resolve({ text: data.text, confidence: data.confidence });
-            } catch (error) {
-                reject(error);
+    try {
+        // Preprocess image (Grayscale + Contrast) for better accuracy
+        const processedImage = await preprocessImage(imageFile);
+
+        const worker = await Tesseract.createWorker('eng');
+        // Configure for better accuracy
+        await worker.setParameters({
+            tessedit_char_whitelist: '0123456789%ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.:,-/ ',
+        });
+
+        const { data } = await worker.recognize(processedImage);
+        await worker.terminate();
+        return { text: data.text, confidence: data.confidence };
+    } catch (error) {
+        console.error("OCR Error:", error);
+        throw error;
+    }
+}
+
+// Helper: Preprocess image for better OCR results
+function preprocessImage(file) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Resize for better OCR (Upscale if small)
+            let width = img.width;
+            let height = img.height;
+            const minWidth = 1000;
+            if (width < minWidth) {
+                const scaleFactor = minWidth / width;
+                width = width * scaleFactor;
+                height = height * scaleFactor;
             }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            // Draw original image
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Get pixel data
+            const imgData = ctx.getImageData(0, 0, width, height);
+            const data = imgData.data;
+
+            // Apply Filters: Grayscale + Binarization (Thresholding)
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+
+                // Grayscale
+                const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+                // Simple Binarization (Boost contrast for text)
+                // Threshold set to 128 (midpoint)
+                const val = gray > 140 ? 255 : 0; // Slightly higher threshold to clear gray backgrounds
+
+                data[i] = val;
+                data[i + 1] = val;
+                data[i + 2] = val;
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+            resolve(canvas.toDataURL('image/jpeg'));
         };
-        reader.onerror = reject;
-        reader.readAsDataURL(imageFile);
+        img.src = URL.createObjectURL(file);
     });
 }
 
