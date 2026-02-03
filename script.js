@@ -750,7 +750,7 @@ function getBotResponse(input) {
         courses: ['course', 'program', 'degree', 'btech', 'bca', 'bsc', 'mba', 'science', 'engineering'],
         eligibility: ['eligible', 'marks', 'percentage', 'criteria', 'rank', 'cutoff'],
         staff: ['principal', 'leadership', 'head', 'subramanian'],
-        transport: ['bus', 'transport', 'route', 'travel', 'commute', 'vehicle'],
+        transport: ['bus', 'transport', 'transportation', 'route', 'travel', 'commute', 'vehicle', 'facility'],
         hostel: ['hostel', 'room', 'stay', 'accommodation', 'auditorium', 'library', 'internet'],
         location: ['location', 'address', 'where', 'pattambi', 'palakkad', 'vavanoor'],
         photos: ['photo', 'image', 'picture', 'campus', 'look', 'gallery', 'see', 'view']
