@@ -204,9 +204,18 @@ const collegeData = {
     `,
     bus: `
         <strong>Need a Ride? We've Got You Covered! 🚌</strong><br>
-        Our college buses run all across the city (up to a 30km radius). It's safe, comfortable, and always on time.<br>
-        <strong>Fee:</strong> ₹500/year (super affordable!).<br>
-        <strong>Routes:</strong> North Campus, City Center, South End, and many more stops.
+        Our college buses from major towns to the campus. It's safe, comfortable, and always on time.<br>
+        <strong>Fee:</strong> ₹500/year (super affordable!).<br><br>
+        <strong>🚌 Our Main Bus Routes:</strong>
+        <ul class="bot-list">
+            <li><strong>Route 1:</strong> Sreekrishnapuram – Cherpulassery – Pattambi - College</li>
+            <li><strong>Route 2:</strong> Perinthalmanna – Pattambi – College</li>
+            <li><strong>Route 3:</strong> Kuttipuram – Ponnani – Koottanad – College</li>
+            <li><strong>Route 4:</strong> Eramangalam – Edappal – Thrithala – College</li>
+            <li><strong>Route 5:</strong> Ottapalam – Kulappuly – Cheruthurthy – College</li>
+            <li><strong>Route 6:</strong> Thrissur – Kecheri - Pannithadam – College</li>
+            <li><strong>Route 7:</strong> Guruvayoor – Kunnamkulam - College</li>
+        </ul>
     `,
     hostel: `
         <strong>Your Home Away From Home! 🏠</strong>
