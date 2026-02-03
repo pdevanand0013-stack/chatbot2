@@ -218,14 +218,17 @@ const collegeData = {
         </ul>
     `,
     hostel: `
-        <strong>Your Home Away From Home! 🏠</strong>
+        <strong>Your Home Away From Home! 🏠</strong><br>
+        Current Fee: <strong>₹40,000 / Semester</strong> (Includes Food & Accommodation).<br><br>
+        
+        <strong>About Our Campus & Stay:</strong>
+        Sreepathy Institute offers a serene, academic-friendly environment perfect for growth. Our hostels provide:
         <ul class="bot-list">
-            <li><strong>Modern Hostel:</strong> Separate facilities for boys and girls with safe, comfortable rooms.</li>
-            <li><strong>Digital Library:</strong> Access to 10,000+ books and indexed journals (8 AM - 6 PM).</li>
-            <li><strong>Smart Campus:</strong> 52 Mbps high-speed internet and advanced computer labs.</li>
-            <li><strong>Modern Amenities:</strong> 1200-seat auditorium, air-conditioned seminar halls, and a subsidized cafeteria.</li>
+            <li><strong>Comfortable Stay:</strong> Separate, safe facilities for boys and girls.</li>
+            <li><strong>All-Inclusive:</strong> Nutritious food and modern amenities included in the fee.</li>
+            <li><strong>Smart Campus:</strong> High-speed internet (52 Mbps) and access to our Digital Library (10,000+ books).</li>
+            <li><strong>Facilities:</strong> 1200-seat auditorium, AC seminar halls, and a subsidized cafeteria.</li>
         </ul>
-        <br>We strive to provide an environment where you can focus entirely on your growth!
     `,
     location: `
         <strong>Where to Find Us: 📍</strong><br>
