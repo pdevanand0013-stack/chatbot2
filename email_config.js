@@ -6,7 +6,7 @@
 
 const EMAILJS_PUBLIC_KEY = 'xwVDRBCYrAVj5BIvF'; // e.g., 'a8B9cD0eF1gH2iJ3k'
 const EMAILJS_SERVICE_ID = 'service_wrue4db'; // e.g., 'service_xyz123'
-const EMAILJS_TEMPLATE_ID = 'template_v91ghtg'; // e.g., 'template_abc456'
+const EMAILJS_TEMPLATE_ID = 'template_dv0pc9c'; // Corrected Template ID
 
 // Initialize EmailJS
 (function() {
