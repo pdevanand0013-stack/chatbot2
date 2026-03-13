@@ -691,20 +691,30 @@ function handleResponse(text) {
         applicantDetails.email = text;
         chatState = "IDLE";
         
-        // Save to Supabase
+        // Save to Supabase and email
         const savedDetails = { ...applicantDetails }; // snapshot before reset
         
         addMessage(flowMessages.confirmApp(savedDetails), 'bot');
         
-        // Save to Supabase after showing confirmation
+        // Save to Supabase and send email after showing confirmation
         setTimeout(async () => {
-            addMessage("⏳ <strong>Saving your application to our records...</strong>", 'bot');
-            const result = await saveApplicationToSupabase(savedDetails);
-            if (result.success) {
-                addMessage("✅ <strong>Application saved!</strong> Our admissions team will reach out to you soon. 🎓", 'bot');
-            } else {
-                addMessage("⚠️ We could not save your application online. Please contact us at <strong>8944552211</strong> or <strong>srpt@gmail.com</strong>.", 'bot');
+            addMessage("⏳ <strong>Saving application & sending confirmation email...</strong>", 'bot');
+            
+            // Run both backend processes simultaneously
+            const [supabaseResult, emailResult] = await Promise.all([
+                saveApplicationToSupabase(savedDetails),
+                sendConfirmationEmail(savedDetails)
+            ]);
+
+            let finalMessage = "✅ <strong>Application saved!</strong> Our admissions team will reach out to you soon. 🎓";
+            
+            if (!supabaseResult.success) {
+                finalMessage = "⚠️ We could not save your application online. Please contact us at <strong>8944552211</strong> or <strong>srpt@gmail.com</strong>.";
+            } else if (emailResult.success) {
+                finalMessage += `<br><small>✉️ An admission confirmation email was successfully sent to ${savedDetails.email}.</small>`;
             }
+
+            addMessage(finalMessage, 'bot');
         }, 1000);
         
         applicantDetails = { name: "", phone: "", course: "", pcmPercent: "", email: "", documentsUploaded: false };
