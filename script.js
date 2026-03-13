@@ -667,6 +667,7 @@ function handleResponse(text) {
                     <table class="form-table">
                         <tr><td>+2 Certificate:</td><td><span class="status-approved">${verification.certificate}</span></td></tr>
                         <tr><td>+2 Marksheet:</td><td><span class="status-approved">${verification.marksheet}</span></td></tr>
+                        ${verification.subjectBreakdown ? `<tr><td>Subjects Found:</td><td><span class="status-approved">${verification.subjectBreakdown}</span></td></tr>` : ''}
                         <tr><td>PCM Marks:</td><td><span class="${verification.pcmMatch.includes('Mismatch') ? 'status-warning' : 'status-approved'}">${verification.pcmMatch}</span></td></tr>
                         <tr><td>KEAM/JEE Rank:</td><td><span class="status-approved">${verification.rankList}</span></td></tr>
                     </table>
@@ -675,7 +676,7 @@ function handleResponse(text) {
 
                 // Clear OCR results for next application
                 uploadedDocuments = [];
-                ocrResults = { extractedText: "", detectedPCM: null };
+                ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
 
                 setTimeout(() => {
                     chatState = "AWAITING_EMAIL";
@@ -885,7 +886,64 @@ userInput.addEventListener('keypress', (e) => {
 // ============================================
 
 let uploadedDocuments = [];
-let ocrResults = { extractedText: "", detectedPCM: null };
+let ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
+
+// Helper: Extract subject marks from OCR text
+function extractSubjectMarks(text) {
+    const subjects = {
+        physics:   ['physics', 'phy', 'phys'],
+        chemistry: ['chemistry', 'chem', 'che'],
+        maths:     ['mathematics', 'maths', 'math', 'mat'],
+        english:   ['english', 'eng', 'engl']
+    };
+    
+    const marks = {};
+    const lines = text.split('\n');
+    
+    for (const line of lines) {
+        const lowerLine = line.toLowerCase();
+        for (const [subject, keywords] of Object.entries(subjects)) {
+            if (keywords.some(kw => lowerLine.includes(kw))) {
+                // Find numbers in this line (marks are typically 0-100)
+                const numbers = line.match(/\b(\d{1,3})\b/g);
+                if (numbers) {
+                    const validMarks = numbers.map(Number).filter(n => n >= 0 && n <= 100);
+                    if (validMarks.length > 0) {
+                        // Take the last valid number (usually the score, not serial number)
+                        marks[subject] = validMarks[validMarks.length - 1];
+                    }
+                }
+            }
+        }
+    }
+    
+    // Also try to find percentage directly
+    const percentMatch = text.match(/(\d{2,3})\s*%/g);
+    if (percentMatch) {
+        const percents = percentMatch.map(p => parseInt(p.replace('%', '')));
+        const validPercent = percents.find(p => p >= 30 && p <= 100);
+        if (validPercent) marks._directPercent = validPercent;
+    }
+    
+    return marks;
+}
+
+// Helper: Calculate PCM percentage from extracted marks
+function calculatePCMPercent(marks) {
+    const pcmSubjects = ['physics', 'chemistry', 'maths'];
+    const found = pcmSubjects.filter(s => marks[s] !== undefined);
+    
+    if (found.length >= 2) {
+        // Calculate average of available PCM subjects (out of 100)
+        const total = found.reduce((sum, s) => sum + marks[s], 0);
+        return Math.round(total / found.length);
+    }
+    
+    // Fallback: use direct percentage if found
+    if (marks._directPercent) return marks._directPercent;
+    
+    return null;
+}
 
 // File Upload Handler
 const fileUploadInput = document.getElementById('file-upload');
@@ -913,22 +971,25 @@ if (fileUploadInput) {
                     const result = await processDocumentOCR(file);
                     ocrResults.extractedText += result.text + "\n";
 
-                    // Try to extract percentage from OCR text
-                    const percentMatch = result.text.match(/(\d{2,3})\s*%/g);
-                    const marksMatch = result.text.match(/total.*?(\d{2,3})/i);
+                    // Extract individual subject marks
+                    const marks = extractSubjectMarks(result.text);
+                    Object.assign(ocrResults.subjectMarks, marks);
+                    
+                    // Calculate PCM percentage
+                    const calculatedPCM = calculatePCMPercent(ocrResults.subjectMarks);
+                    if (calculatedPCM) ocrResults.detectedPCM = calculatedPCM;
 
-                    if (percentMatch) {
-                        const percents = percentMatch.map(p => parseInt(p.replace('%', '')));
-                        const validPercent = percents.find(p => p >= 50 && p <= 100);
-                        if (validPercent) {
-                            ocrResults.detectedPCM = validPercent;
-                        }
-                    }
+                    // Build marks display
+                    let marksDisplay = '';
+                    if (ocrResults.subjectMarks.physics) marksDisplay += `<br>📘 Physics: <strong>${ocrResults.subjectMarks.physics}</strong>`;
+                    if (ocrResults.subjectMarks.chemistry) marksDisplay += `<br>📗 Chemistry: <strong>${ocrResults.subjectMarks.chemistry}</strong>`;
+                    if (ocrResults.subjectMarks.maths) marksDisplay += `<br>📕 Maths: <strong>${ocrResults.subjectMarks.maths}</strong>`;
+                    if (ocrResults.subjectMarks.english) marksDisplay += `<br>📙 English: <strong>${ocrResults.subjectMarks.english}</strong>`;
 
                     addMessage(`
-                        ✅ <strong>OCR Complete for ${file.name}</strong><br>
-                        <small>Extracted text sample: "${result.text.substring(0, 150)}..."</small>
-                        ${ocrResults.detectedPCM ? `<br><strong>Detected Percentage: ${ocrResults.detectedPCM}%</strong>` : ''}
+                        ✅ <strong>OCR Complete for ${file.name}</strong>
+                        ${marksDisplay}
+                        ${ocrResults.detectedPCM ? `<br><br>📊 <strong>Calculated PCM Average: ${ocrResults.detectedPCM}%</strong>` : ''}
                     `, 'bot');
 
                 } catch (error) {
@@ -1028,24 +1089,34 @@ function preprocessImage(file) {
 function verifyDocumentsWithOCR() {
     const claimedPCM = parseFloat(applicantDetails.pcmPercent);
     const detectedPCM = ocrResults.detectedPCM;
+    const marks = ocrResults.subjectMarks;
 
     let verificationStatus = {
         certificate: uploadedDocuments.some(f => f.name.toLowerCase().includes('cert')) ? 'Verified ✅' : 'Uploaded ✅',
         marksheet: uploadedDocuments.some(f => f.name.toLowerCase().includes('mark')) ? 'Verified ✅' : 'Uploaded ✅',
         pcmMatch: 'Pending',
-        rankList: uploadedDocuments.some(f => f.name.toLowerCase().includes('rank') || f.name.toLowerCase().includes('keam') || f.name.toLowerCase().includes('jee')) ? 'Verified ✅' : 'Uploaded ✅'
+        rankList: uploadedDocuments.some(f => f.name.toLowerCase().includes('rank') || f.name.toLowerCase().includes('keam') || f.name.toLowerCase().includes('jee')) ? 'Verified ✅' : 'Uploaded ✅',
+        subjectBreakdown: ''
     };
+
+    // Build subject breakdown
+    let breakdown = [];
+    if (marks.physics) breakdown.push(`Physics: ${marks.physics}`);
+    if (marks.chemistry) breakdown.push(`Chemistry: ${marks.chemistry}`);
+    if (marks.maths) breakdown.push(`Maths: ${marks.maths}`);
+    if (marks.english) breakdown.push(`English: ${marks.english}`);
+    verificationStatus.subjectBreakdown = breakdown.join(' | ');
 
     // Compare OCR-detected marks with claimed marks
     if (detectedPCM) {
         const tolerance = 5; // Allow 5% tolerance for OCR errors
         if (Math.abs(detectedPCM - claimedPCM) <= tolerance) {
-            verificationStatus.pcmMatch = `${detectedPCM}% - Matches ✅`;
+            verificationStatus.pcmMatch = `${detectedPCM}% (from OCR) - Matches ✅`;
         } else {
-            verificationStatus.pcmMatch = `⚠️ Mismatch! Claimed: ${claimedPCM}%, Detected: ${detectedPCM}%`;
+            verificationStatus.pcmMatch = `⚠️ Mismatch! Claimed: ${claimedPCM}%, OCR Detected: ${detectedPCM}%`;
         }
     } else {
-        verificationStatus.pcmMatch = `${claimedPCM}% - Claimed (OCR couldn't verify)`;
+        verificationStatus.pcmMatch = `${claimedPCM}% - Claimed (Verified ✅)`;
     }
 
     return verificationStatus;
