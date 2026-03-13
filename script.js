@@ -689,7 +689,23 @@ function handleResponse(text) {
     else if (chatState === "AWAITING_EMAIL") {
         applicantDetails.email = text;
         chatState = "IDLE";
-        addMessage(flowMessages.confirmApp(applicantDetails), 'bot');
+        
+        // Save to Supabase
+        const savedDetails = { ...applicantDetails }; // snapshot before reset
+        
+        addMessage(flowMessages.confirmApp(savedDetails), 'bot');
+        
+        // Save to Supabase after showing confirmation
+        setTimeout(async () => {
+            addMessage("⏳ <strong>Saving your application to our records...</strong>", 'bot');
+            const result = await saveApplicationToSupabase(savedDetails);
+            if (result.success) {
+                addMessage("✅ <strong>Application saved!</strong> Our admissions team will reach out to you soon. 🎓", 'bot');
+            } else {
+                addMessage("⚠️ We could not save your application online. Please contact us at <strong>8944552211</strong> or <strong>srpt@gmail.com</strong>.", 'bot');
+            }
+        }, 1000);
+        
         applicantDetails = { name: "", phone: "", course: "", pcmPercent: "", email: "", documentsUploaded: false };
     }
 }
