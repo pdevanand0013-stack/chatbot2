@@ -4,9 +4,9 @@
 // IMPORTANT: Replace these placeholders with your actual EmailJS credentials.
 // Get them from: https://dashboard.emailjs.com/
 
-const EMAILJS_PUBLIC_KEY = 'YOUR_EMAILJS_PUBLIC_KEY'; // e.g., 'a8B9cD0eF1gH2iJ3k'
-const EMAILJS_SERVICE_ID = 'YOUR_EMAILJS_SERVICE_ID'; // e.g., 'service_xyz123'
-const EMAILJS_TEMPLATE_ID = 'YOUR_EMAILJS_TEMPLATE_ID'; // e.g., 'template_abc456'
+const EMAILJS_PUBLIC_KEY = 'xwVDRBCYrAVj5BIvF'; // e.g., 'a8B9cD0eF1gH2iJ3k'
+const EMAILJS_SERVICE_ID = 'service_wrue4db'; // e.g., 'service_xyz123'
+const EMAILJS_TEMPLATE_ID = 'template_v91ghtg'; // e.g., 'template_abc456'
 
 // Initialize EmailJS
 (function() {
