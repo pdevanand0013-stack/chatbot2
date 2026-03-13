@@ -29,6 +29,7 @@ async function saveApplicationToSupabase(details) {
 
         if (error) {
             console.error('Supabase Insert Error:', error.message);
+            alert("Supabase Error Details: " + error.message); // Added for user debugging
             return { success: false, message: error.message };
         }
 
@@ -37,6 +38,7 @@ async function saveApplicationToSupabase(details) {
 
     } catch (err) {
         console.error('Supabase connection error:', err);
+        alert("Supabase Connection Error: " + err.message); // Added for user debugging
         return { success: false, message: err.message };
     }
 }
