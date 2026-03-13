@@ -702,7 +702,7 @@ function handleResponse(text) {
             
             // Run both backend processes simultaneously
             const [supabaseResult, emailResult] = await Promise.all([
-                saveApplicationToSupabase(savedDetails),
+                saveApplicationToSupabase(savedDetails, ocrResults),
                 sendConfirmationEmail(savedDetails)
             ]);
 
@@ -914,12 +914,13 @@ function extractSubjectMarks(text) {
         const lowerLine = line.toLowerCase();
         for (const [subject, keywords] of Object.entries(subjects)) {
             if (keywords.some(kw => lowerLine.includes(kw))) {
-                // Find numbers in this line (marks are typically 0-100)
-                const numbers = line.match(/\b(\d{1,3})\b/g);
+                // Find numbers in this line (marks are typically 30-100)
+                // Filter out single digits (often serial numbers, credits, or grades)
+                const numbers = line.match(/\b(\d{2,3})\b/g);
                 if (numbers) {
-                    const validMarks = numbers.map(Number).filter(n => n >= 0 && n <= 100);
+                    const validMarks = numbers.map(Number).filter(n => n >= 30 && n <= 100);
                     if (validMarks.length > 0) {
-                        // Take the last valid number (usually the score, not serial number)
+                        // Take the last valid number (usually the score)
                         marks[subject] = validMarks[validMarks.length - 1];
                     }
                 }

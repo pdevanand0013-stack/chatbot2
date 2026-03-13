@@ -12,7 +12,7 @@ const { createClient } = supabase;
 const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // Function to save an application to Supabase
-async function saveApplicationToSupabase(details) {
+async function saveApplicationToSupabase(details, ocrData) {
     try {
         const { data, error } = await supabaseClient
             .from('applications')
@@ -24,7 +24,13 @@ async function saveApplicationToSupabase(details) {
                 keam_rank:    String(details.keamRank || 'N/A'),
                 scholarship:  details.scholarship || 'None',
                 email:        details.email,
-                fee_discount: details.feeDiscount ? `${details.feeDiscount.percentage}%` : '0%'
+                fee_discount: details.feeDiscount ? `${details.feeDiscount.percentage}%` : '0%',
+                // OCR Extracted Data
+                ocr_physics:  ocrData && ocrData.subjectMarks && ocrData.subjectMarks.physics ? String(ocrData.subjectMarks.physics) : 'N/A',
+                ocr_chemistry: ocrData && ocrData.subjectMarks && ocrData.subjectMarks.chemistry ? String(ocrData.subjectMarks.chemistry) : 'N/A',
+                ocr_maths:    ocrData && ocrData.subjectMarks && ocrData.subjectMarks.maths ? String(ocrData.subjectMarks.maths) : 'N/A',
+                ocr_english:  ocrData && ocrData.subjectMarks && ocrData.subjectMarks.english ? String(ocrData.subjectMarks.english) : 'N/A',
+                ocr_calculated_pcm: ocrData && ocrData.detectedPCM ? String(ocrData.detectedPCM) : 'N/A'
             }]);
 
         if (error) {
