@@ -855,16 +855,18 @@ function getBotResponse(input) {
     // Calculate best match score across all categories
     let bestMatch = { category: 'default', score: 0 };
     const words = input.toLowerCase().split(/\s+/);
+    const normalizedInput = input.toLowerCase().replace(/\s+/g, ''); // e.g. "applynow", "busroute"
 
     for (const [category, keywords] of Object.entries(categories)) {
         for (const keyword of keywords) {
-            // Direct NLP check
-            if (doc.has(keyword)) {
+            const keywordNorm = keyword.replace(/\s+/g, '');
+
+            // Direct NLP check OR substring check in normalized input
+            if (doc.has(keyword) || normalizedInput.includes(keywordNorm)) {
                 // Map category to correct data key
                 let dataKey = category;
                 if (category === 'courses') dataKey = 'fees';
                 if (category === 'transport') dataKey = 'bus';
-                // All new categories (contact, placements, naac, labs, events) use same key as category name
 
                 return collegeData[dataKey] || collegeData.default;
             }
