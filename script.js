@@ -257,20 +257,80 @@ const collegeData = {
         <br><i>Is there any specific facility you'd like to know more about?</i>
     `,
     default: `
-        Oops! I didn't quite catch that. 🤔<br>
-        But hey, I can tell you about:
-        <ul class="bot-list">
-            <li>Admission (or type "Apply Now")</li>
-            <li>Fee Structures</li>
-            <li>Eligibility Criteria</li>
-            <li>Our Awesome Faculty</li>
-            <li>Bus / Transport</li>
-            <li>Hostel Life</li>
-        </ul>
+        <strong>Hmm, I'm not sure about that specific query! 🤔</strong><br>
+        But I can instantly answer questions about:<br>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;">
+            <span>🎓 Admission Process</span>
+            <span>💰 Fee Structures</span>
+            <span>📚 Courses & Programs</span>
+            <span>✅ Eligibility Criteria</span>
+            <span>🚌 Bus Routes</span>
+            <span>🏠 Hostel & Facilities</span>
+            <span>📍 Location & Map</span>
+            <span>📞 Contact & Support</span>
+            <span>🏆 Placements</span>
+            <span>🔬 Labs & Infrastructure</span>
+        </div>
         <br>
-        <strong>Need to talk to a human?</strong><br>
-        📞 Phone: 8944552211<br>
-        📧 Email: srpt@gmail.com
+        <strong>Reach a human directly:</strong><br>
+        📞 <strong>8944552211</strong> &nbsp;|&nbsp; 📧 <strong>srpt@gmail.com</strong>
+    `,
+    contact: `
+        <strong>📞 Get in Touch with Us!</strong><br><br>
+        <table class="bot-table">
+            <tr><td><strong>📞 Phone</strong></td><td>8944552211</td></tr>
+            <tr><td><strong>📧 Email</strong></td><td>srpt@gmail.com</td></tr>
+            <tr><td><strong>🌐 Website</strong></td><td>www.sreepathy.ac.in</td></tr>
+            <tr><td><strong>📍 Address</strong></td><td>Vavanoor P.O, Koottanad, Pattambi, Palakkad, Kerala - 679533</td></tr>
+            <tr><td><strong>🕐 Office Hours</strong></td><td>Mon–Sat: 9:00 AM – 5:00 PM</td></tr>
+        </table><br>
+        <small>Our admissions office is always happy to assist you in person!</small>
+    `,
+    placements: `
+        <strong>🏆 Placement & Career Support at SIMAT</strong><br><br>
+        Sreepathy has a dedicated Training & Placement Cell that works year-round to connect students with top employers.<br><br>
+        <strong>🌟 Key Highlights:</strong>
+        <ul class="bot-list">
+            <li><strong>Active Alumni Network</strong> across government, IT, and public sector organizations.</li>
+            <li><strong>Career Guidance:</strong> Resume building, mock interviews, and aptitude training workshops.</li>
+            <li><strong>Industry Tie-ups:</strong> Regular industrial visits and collaboration with Kerala-based firms.</li>
+            <li><strong>Higher Studies Support:</strong> Guidance for GATE, CAT, and other competitive exams.</li>
+        </ul>
+        <br><small>📧 Contact the placement cell at <strong>srpt@gmail.com</strong> for details.</small>
+    `,
+    naac: `
+        <strong>🏅 Accreditation & Recognition</strong><br><br>
+        Sreepathy Institute of Management and Technology is recognized by leading bodies ensuring quality education:<br>
+        <ul class="bot-list">
+            <li>✅ <strong>AICTE Approved</strong> — All India Council for Technical Education</li>
+            <li>✅ <strong>Affiliated to University of Calicut</strong></li>
+            <li>✅ <strong>Recognized by Govt. of Kerala</strong></li>
+            <li>✅ <strong>NBA Accreditation</strong> process followed for technical programs</li>
+        </ul>
+        <br><i>Our commitment to quality education is backed by national recognition! 🎖️</i>
+    `,
+    labs: `
+        <strong>🔬 World-Class Labs & Infrastructure</strong><br><br>
+        SIMAT provides state-of-the-art facilities to ensure hands-on, practical learning:
+        <ul class="bot-list">
+            <li>💻 <strong>Computer Labs</strong> — 200+ high-spec computers with 24/7 internet access (52 Mbps)</li>
+            <li>⚡ <strong>Electronics & Circuits Lab</strong> — Fully equipped for B.Tech EEE & ECE</li>
+            <li>🧪 <strong>Physics & Chemistry Lab</strong> — Well maintained for B.Sc programs</li>
+            <li>📡 <strong>Networking Lab</strong> — Cisco-certified equipment for CSE students</li>
+            <li>📚 <strong>Digital Library</strong> — 10,000+ books and online journals</li>
+            <li>🎤 <strong>Auditorium</strong> — 1200-seat capacity for events and seminars</li>
+        </ul>
+    `,
+    events: `
+        <strong>🎉 College Events & Student Life</strong><br><br>
+        Life at SIMAT is vibrant and full of opportunities beyond the classroom!
+        <ul class="bot-list">
+            <li>🏆 <strong>TECHNOLEAD</strong> — Annual Technical Fest with competitions, hackathons & workshops</li>
+            <li>🎭 <strong>Cultural Fest</strong> — Music, dance, drama & art competitions every year</li>
+            <li>⚽ <strong>Sports Meet</strong> — Inter-college sports events on our large campus grounds</li>
+            <li>📊 <strong>Industry Expert Talks</strong> — Monthly guest lectures from industry professionals</li>
+            <li>🌿 <strong>NSS & NCC</strong> — Active social service and discipline programs</li>
+        </ul>
     `,
     greetings: ["hi", "hello", "hey", "hola", "greetings", "sup", "yo"],
     greetingResponse: "Welcome to SREEPATHY! 👋 I'm your dedicated Admission Assistant. Whether you're a curious student or a supporting parent, I'm here to ensure your journey to our campus is smooth and exciting. How can I help you navigate your future today?",
@@ -772,15 +832,20 @@ function getBotResponse(input) {
 
     // Keyword categories for mapping
     const categories = {
-        admission: ['admission', 'apply', 'enroll', 'process', 'procedure', 'deadline', 'date'],
-        fees: ['fee', 'cost', 'price', 'payment', 'money', 'scholarship'],
-        courses: ['course', 'program', 'degree', 'btech', 'bca', 'bsc', 'mba', 'science', 'engineering'],
-        eligibility: ['eligible', 'marks', 'percentage', 'criteria', 'rank', 'cutoff'],
-        staff: ['principal', 'leadership', 'head', 'subramanian'],
-        transport: ['bus', 'transport', 'transportation', 'route', 'travel', 'commute', 'vehicle', 'facility'],
-        hostel: ['hostel', 'room', 'stay', 'accommodation', 'auditorium', 'library', 'internet'],
-        location: ['location', 'address', 'where', 'pattambi', 'palakkad', 'vavanoor'],
-        photos: ['photo', 'image', 'picture', 'campus', 'look', 'gallery', 'see', 'view']
+        admission:    ['admission', 'apply', 'enroll', 'process', 'procedure', 'deadline', 'date', 'application', 'registration'],
+        fees:         ['fee', 'cost', 'price', 'payment', 'money', 'structure', 'tuition', 'semester'],
+        courses:      ['course', 'program', 'degree', 'btech', 'bca', 'bsc', 'mba', 'science', 'engineering', 'branch', 'specialization'],
+        eligibility:  ['eligible', 'eligibility', 'marks', 'percentage', 'criteria', 'rank', 'cutoff', 'qualification', 'requirement', 'pcm', 'keam'],
+        staff:        ['principal', 'leadership', 'head', 'subramanian', 'director', 'faculty', 'professor', 'teacher', 'staff', 'hod'],
+        transport:    ['bus', 'transport', 'transportation', 'route', 'travel', 'commute', 'vehicle', 'shuttle'],
+        hostel:       ['hostel', 'room', 'stay', 'accommodation', 'dormitory', 'mess', 'food', 'canteen', 'cafeteria'],
+        location:     ['location', 'address', 'where', 'pattambi', 'palakkad', 'vavanoor', 'koottanad', 'map', 'distance', 'how to reach'],
+        photos:       ['photo', 'image', 'picture', 'campus', 'look', 'gallery', 'see', 'view', 'infrastructure'],
+        contact:      ['contact', 'phone', 'email', 'helpline', 'call', 'number', 'reach', 'support', 'website'],
+        placements:   ['placement', 'job', 'career', 'company', 'recruit', 'hire', 'salary', 'package', 'opportunity', 'campus drive'],
+        naac:         ['naac', 'nba', 'aicte', 'accredit', 'recognized', 'affiliation', 'calicut university', 'approved', 'certification'],
+        labs:         ['lab', 'laboratory', 'computer', 'network', 'equipment', 'workshop', 'practical', 'library', 'auditorium', 'infrastructure'],
+        events:       ['event', 'fest', 'cultural', 'sports', 'competition', 'nss', 'ncc', 'club', 'activity', 'technolead', 'festival']
     };
 
     // Calculate best match score across all categories
@@ -795,6 +860,7 @@ function getBotResponse(input) {
                 let dataKey = category;
                 if (category === 'courses') dataKey = 'fees';
                 if (category === 'transport') dataKey = 'bus';
+                // All new categories (contact, placements, naac, labs, events) use same key as category name
 
                 return collegeData[dataKey] || collegeData.default;
             }
@@ -1008,17 +1074,27 @@ if (fileUploadInput) {
                     const calculatedPCM = calculatePCMPercent(ocrResults.subjectMarks);
                     if (calculatedPCM) ocrResults.detectedPCM = calculatedPCM;
 
-                    // Build marks display
+                    // Build marks display - always shown after any marksheet upload
                     let marksDisplay = '';
-                    if (ocrResults.subjectMarks.physics) marksDisplay += `<br>📘 Physics: <strong>${ocrResults.subjectMarks.physics}</strong>`;
-                    if (ocrResults.subjectMarks.chemistry) marksDisplay += `<br>📗 Chemistry: <strong>${ocrResults.subjectMarks.chemistry}</strong>`;
-                    if (ocrResults.subjectMarks.maths) marksDisplay += `<br>📕 Maths: <strong>${ocrResults.subjectMarks.maths}</strong>`;
-                    if (ocrResults.subjectMarks.english) marksDisplay += `<br>📙 English: <strong>${ocrResults.subjectMarks.english}</strong>`;
+                    const sm = ocrResults.subjectMarks;
+                    if (sm.physics)   marksDisplay += `<br>📘 Physics: <strong>${sm.physics}%</strong>${sm.physics_raw ? ` (${sm.physics_raw}/200)` : ''}`;
+                    if (sm.chemistry) marksDisplay += `<br>📗 Chemistry: <strong>${sm.chemistry}%</strong>${sm.chemistry_raw ? ` (${sm.chemistry_raw}/200)` : ''}`;
+                    if (sm.maths)     marksDisplay += `<br>📕 Maths: <strong>${sm.maths}%</strong>${sm.maths_raw ? ` (${sm.maths_raw}/200)` : ''}`;
+                    if (sm.english)   marksDisplay += `<br>📙 English: <strong>${sm.english}%</strong>${sm.english_raw ? ` (${sm.english_raw}/200)` : ''}`;
+
+                    const noMarksFound = !sm.physics && !sm.chemistry && !sm.maths && !sm.english;
+                    if (noMarksFound) {
+                        marksDisplay = `<br><small>⚠️ Could not auto-detect subject marks. Please ensure the image is clear and well-lit.</small>`;
+                    }
+
+                    const pcmLine = ocrResults.detectedPCM
+                        ? `<br><br>📊 <strong>Calculated PCM Average: ${ocrResults.detectedPCM}%</strong>`
+                        : (noMarksFound ? '' : `<br><br>📊 <em>PCM Average: Not enough subjects found to calculate.</em>`);
 
                     addMessage(`
                         ✅ <strong>OCR Complete for ${file.name}</strong>
                         ${marksDisplay}
-                        ${ocrResults.detectedPCM ? `<br><br>📊 <strong>Calculated PCM Average: ${ocrResults.detectedPCM}%</strong>` : ''}
+                        ${pcmLine}
                     `, 'bot');
 
                 } catch (error) {
