@@ -899,12 +899,16 @@ let uploadedDocuments = [];
 let ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
 
 // Helper: Extract subject marks from OCR text
+// Handles Kerala DHSE marksheet format:
+//   - Each subject row has many columns (CE, TE, GM x2 years + totals)
+//   - The "Total" (Grand Total column) is a 3-digit number out of 200
+//   - We look for the last 3-digit value >= 50 and <= 200 as it's the final score
 function extractSubjectMarks(text) {
     const subjects = {
         physics:   ['physics', 'phy', 'phys'],
-        chemistry: ['chemistry', 'chem', 'che'],
-        maths:     ['mathematics', 'maths', 'math', 'mat'],
-        english:   ['english', 'eng', 'engl']
+        chemistry: ['chemistry', 'chem'],
+        maths:     ['mathematics', 'maths', 'math', 'mathematics-sci'],
+        english:   ['english', 'eng']
     };
     
     const marks = {};
@@ -913,25 +917,40 @@ function extractSubjectMarks(text) {
     for (const line of lines) {
         const lowerLine = line.toLowerCase();
         for (const [subject, keywords] of Object.entries(subjects)) {
+            if (marks[subject]) continue; // already found
             if (keywords.some(kw => lowerLine.includes(kw))) {
-                // Find numbers in this line (marks are typically 30-100)
-                // Filter out single digits (often serial numbers, credits, or grades)
-                const numbers = line.match(/\b(\d{2,3})\b/g);
-                if (numbers) {
-                    const validMarks = numbers.map(Number).filter(n => n >= 30 && n <= 100);
-                    if (validMarks.length > 0) {
-                        // Take the last valid number (usually the score)
-                        marks[subject] = validMarks[validMarks.length - 1];
+                // Extract all numbers from this line
+                const numbers = (line.match(/\b(\d+)\b/g) || []).map(Number);
+                
+                // Priority 1: Look for a total score out of 200 (3-digit, 50-200)
+                const totalsOut200 = numbers.filter(n => n >= 50 && n <= 200);
+                if (totalsOut200.length > 0) {
+                    // The Grand Total column is typically the last large 3-digit number
+                    // Filter to only 3-digit numbers for Kerala board
+                    const threeDigit = totalsOut200.filter(n => n >= 100 && n <= 200);
+                    if (threeDigit.length > 0) {
+                        // Take the last 3-digit number in the row (the Grand Total column)
+                        const rawTotal = threeDigit[threeDigit.length - 1];
+                        // Convert from /200 scale to percentage
+                        marks[subject] = Math.round((rawTotal / 200) * 100);
+                        marks[`${subject}_raw`] = rawTotal; // store raw too
+                        continue;
+                    }
+
+                    // Priority 2: 2-digit marks (out of 100 scale like CBSE)
+                    const twoDigit = totalsOut200.filter(n => n >= 30 && n < 100);
+                    if (twoDigit.length > 0) {
+                        marks[subject] = twoDigit[twoDigit.length - 1];
                     }
                 }
             }
         }
     }
     
-    // Also try to find percentage directly
+    // Also try to find percentage directly (e.g., "85%")
     const percentMatch = text.match(/(\d{2,3})\s*%/g);
     if (percentMatch) {
-        const percents = percentMatch.map(p => parseInt(p.replace('%', '')));
+        const percents = percentMatch.map(p => parseInt(p));
         const validPercent = percents.find(p => p >= 30 && p <= 100);
         if (validPercent) marks._directPercent = validPercent;
     }
@@ -945,7 +964,6 @@ function calculatePCMPercent(marks) {
     const found = pcmSubjects.filter(s => marks[s] !== undefined);
     
     if (found.length >= 2) {
-        // Calculate average of available PCM subjects (out of 100)
         const total = found.reduce((sum, s) => sum + marks[s], 0);
         return Math.round(total / found.length);
     }
