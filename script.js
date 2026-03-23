@@ -555,8 +555,12 @@ function handleResponse(text) {
         const response = getBotResponse(lowerText);
         addMessage(response, 'bot');
 
-        // Trigger Admission Flow
-        if (/\b(apply|enroll|registration|form|admission procedure|procedure)\b/.test(lowerText)) {
+        // Trigger Admission Flow — match both "apply now" and "applynow" (no space)
+        const normalizedText = lowerText.replace(/\s+/g, ''); // Remove all spaces for compact matching
+        const isApplyTrigger = /\b(apply|enroll|registration|form|admission procedure|procedure|start application)\b/.test(lowerText)
+            || /(applynow|applaynow|enrollnow|getadmission|startadmission|beginadmission|applyform)/.test(normalizedText);
+
+        if (isApplyTrigger) {
             chatState = "AWAITING_NAME";
             setTimeout(() => addMessage(flowMessages.askName, 'bot'), 500);
         }
