@@ -980,7 +980,7 @@ let ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
 function extractSubjectMarks(text) {
     const subjects = {
         physics:   ['physics', 'phy', 'phys', 'physis', 'phisycs', 'phisi'],
-        chemistry: ['chemistry', 'chem', 'chm', 'chemi', 'chemy', 'hemis', 'mistry', 'istry'],
+        chemistry: ['chemistry', 'chem', 'chm', 'chemi', 'chemy', 'hemis', 'mistry', 'istry', 'cemist', 'mistr'],
         maths:     ['mathematics', 'maths', 'math', 'mat', 'mathe', 'mathematics-sci', 'mathematicssci', 'mathemetics', 'maths-sci'],
         english:   ['english', 'eng', 'engl', 'engli', 'enlgish', 'egnlis']
     };
@@ -1004,17 +1004,15 @@ function extractSubjectMarks(text) {
     potentialMarks.forEach(pm => {
         for (const [subject, keywords] of Object.entries(subjects)) {
             for (const kw of keywords) {
-                // Search for keyword in a very wide window around the number (+/- 500 chars)
-                const windowStart = Math.max(0, pm.index - 500);
-                const windowEnd = Math.min(lowerText.length, pm.index + 500);
+                // Search for keyword in a very wide window around the number (+/- 1000 chars)
+                const windowStart = Math.max(0, pm.index - 1000);
+                const windowEnd = Math.min(lowerText.length, pm.index + 1000);
                 const windowText = lowerText.substring(windowStart, windowEnd);
                 
                 if (windowText.includes(kw)) {
-                    // Find actual distance in the full text
                     const foundIndex = lowerText.indexOf(kw, windowStart);
                     const distance = Math.abs(foundIndex - pm.index);
                     
-                    // Priority: 3-digit marks (Grand Total 100-200)
                     if (pm.val >= 100) {
                         if (!marks[subject] || distance < marks[`${subject}_dist`]) {
                             marks[subject] = Math.round((pm.val / 200) * 100);
@@ -1022,7 +1020,6 @@ function extractSubjectMarks(text) {
                             marks[`${subject}_dist`] = distance;
                         }
                     } 
-                    // Fallback to 2-digit marks
                     else if (!marks[subject]) {
                         if (!marks[subject] || distance < marks[`${subject}_dist`]) {
                             marks[subject] = pm.val;
@@ -1034,19 +1031,29 @@ function extractSubjectMarks(text) {
         }
     });
 
-    // Cleanup: Remove distance tracking before returning
-    Object.keys(marks).forEach(key => { if (key.endsWith('_dist')) delete marks[key]; });
-    
-    // 3. Percentage sign fallback
-    const percentMatch = text.match(/(\d{2,3})\s*%/g);
-    if (percentMatch) {
-        const percents = percentMatch.map(p => parseInt(p));
-        const validPercent = percents.find(p => p >= 30 && p <= 100);
-        if (validPercent) marks._directPercent = validPercent;
+    // 3. Fallback: Part III search (Chemistry/Physics/Maths are often under "PART III")
+    if ((!marks.chemistry || !marks.physics || !marks.maths) && lowerText.includes('part iii')) {
+        const p3Index = lowerText.indexOf('part iii');
+        const nearbyOrphans = potentialMarks.filter(pm => 
+            Math.abs(pm.index - p3Index) < 1500 && // Wide scan for the block
+            !Object.values(marks).includes(Math.round((pm.val/200)*100)) &&
+            !Object.values(marks).includes(pm.val)
+        );
+        
+        // Assign first orphan to chemistry if missing
+        if (!marks.chemistry && nearbyOrphans.length > 0) {
+            const m = nearbyOrphans[0];
+            marks.chemistry = m.val >= 100 ? Math.round((m.val/200)*100) : m.val;
+            if (m.val >= 100) marks.chemistry_raw = m.val;
+        }
     }
+
+    // Cleanup
+    Object.keys(marks).forEach(key => { if (key.endsWith('_dist')) delete marks[key]; });
     
     return marks;
 }
+
 
 
 
@@ -1173,13 +1180,19 @@ function preprocessImage(file) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
 
-            // Resize for better OCR (Upscale if small)
+            // Resize for optimal OCR speed/accuracy balance
             let width = img.width;
             let height = img.height;
-            const minWidth = 1000;
+            const minWidth = 1500;
+            const maxWidth = 2000;
+            
             if (width < minWidth) {
                 const scaleFactor = minWidth / width;
-                width = width * scaleFactor;
+                width = minWidth;
+                height = height * scaleFactor;
+            } else if (width > maxWidth) {
+                const scaleFactor = maxWidth / width;
+                width = maxWidth;
                 height = height * scaleFactor;
             }
 
