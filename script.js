@@ -979,10 +979,10 @@ let ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
 //   - We look for the last 3-digit value >= 50 and <= 200 as it's the final score
 function extractSubjectMarks(text) {
     const subjects = {
-        physics:   ['physics', 'phy', 'phys', 'physis', 'phisycs'],
-        chemistry: ['chemistry', 'chem', 'chm', 'chemi', 'chemy'],
-        maths:     ['mathematics', 'maths', 'math', 'mat', 'mathe', 'mathematics-sci', 'mathematicssci', 'mathemetics'],
-        english:   ['english', 'eng', 'engl', 'engli', 'enlgish']
+        physics:   ['physics', 'phy', 'phys', 'physis', 'phisycs', 'phisi'],
+        chemistry: ['chemistry', 'chem', 'chm', 'chemi', 'chemy', 'hemis', 'mistry', 'istry'],
+        maths:     ['mathematics', 'maths', 'math', 'mat', 'mathe', 'mathematics-sci', 'mathematicssci', 'mathemetics', 'maths-sci'],
+        english:   ['english', 'eng', 'engl', 'engli', 'enlgish', 'egnlis']
     };
     
     const marks = {};
@@ -1004,15 +1004,17 @@ function extractSubjectMarks(text) {
     potentialMarks.forEach(pm => {
         for (const [subject, keywords] of Object.entries(subjects)) {
             for (const kw of keywords) {
-                // Search for keyword in a wide window around the number (+/- 400 chars)
-                const windowStart = Math.max(0, pm.index - 400);
-                const windowEnd = Math.min(lowerText.length, pm.index + 400);
+                // Search for keyword in a very wide window around the number (+/- 500 chars)
+                const windowStart = Math.max(0, pm.index - 500);
+                const windowEnd = Math.min(lowerText.length, pm.index + 500);
                 const windowText = lowerText.substring(windowStart, windowEnd);
                 
                 if (windowText.includes(kw)) {
-                    const distance = Math.abs(lowerText.indexOf(kw, windowStart) - pm.index);
+                    // Find actual distance in the full text
+                    const foundIndex = lowerText.indexOf(kw, windowStart);
+                    const distance = Math.abs(foundIndex - pm.index);
                     
-                    // Priority: 3-digit marks (the "Total" column in Kerala marksheets)
+                    // Priority: 3-digit marks (Grand Total 100-200)
                     if (pm.val >= 100) {
                         if (!marks[subject] || distance < marks[`${subject}_dist`]) {
                             marks[subject] = Math.round((pm.val / 200) * 100);
@@ -1020,7 +1022,7 @@ function extractSubjectMarks(text) {
                             marks[`${subject}_dist`] = distance;
                         }
                     } 
-                    // Fallback to 2-digit marks if no 3-digit mark has been found for this subject yet
+                    // Fallback to 2-digit marks
                     else if (!marks[subject]) {
                         if (!marks[subject] || distance < marks[`${subject}_dist`]) {
                             marks[subject] = pm.val;
@@ -1031,6 +1033,9 @@ function extractSubjectMarks(text) {
             }
         }
     });
+
+    // Cleanup: Remove distance tracking before returning
+    Object.keys(marks).forEach(key => { if (key.endsWith('_dist')) delete marks[key]; });
     
     // 3. Percentage sign fallback
     const percentMatch = text.match(/(\d{2,3})\s*%/g);
@@ -1042,6 +1047,7 @@ function extractSubjectMarks(text) {
     
     return marks;
 }
+
 
 
 
