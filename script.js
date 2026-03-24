@@ -979,70 +979,58 @@ let ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
 //   - We look for the last 3-digit value >= 50 and <= 200 as it's the final score
 function extractSubjectMarks(text) {
     const subjects = {
-        physics:   ['physics', 'phy', 'phys', 'physis'],
-        chemistry: ['chemistry', 'chem', 'chm', 'chemi'],
-        maths:     ['mathematics', 'maths', 'math', 'mat', 'mathe', 'mathematics-sci', 'mathematicssci'],
-        english:   ['english', 'eng', 'engl', 'engli']
+        physics:   ['physics', 'phy', 'phys', 'physis', 'phisycs'],
+        chemistry: ['chemistry', 'chem', 'chm', 'chemi', 'chemy'],
+        maths:     ['mathematics', 'maths', 'math', 'mat', 'mathe', 'mathematics-sci', 'mathematicssci', 'mathemetics'],
+        english:   ['english', 'eng', 'engl', 'engli', 'enlgish']
     };
     
     const marks = {};
-    // Clean text: Replace everything except alphanumeric with spaces to fix boundary issues (e.g. "Maths:143" or "|143|")
     const cleanText = text.replace(/[^a-zA-Z0-9\s%]/g, ' ');
     const lowerText = cleanText.toLowerCase();
     
-    // 1. Find all 2-3 digit numbers
-    const allNumbers = [];
+    // 1. Find all 2-3 digit numbers (Potential Marks)
+    const potentialMarks = [];
     const numRegex = /(\d{2,3})/g;
     let match;
     while ((match = numRegex.exec(cleanText)) !== null) {
         const val = parseInt(match[1]);
         if (val >= 30 && val <= 200) {
-            allNumbers.push({ val: val, index: match.index });
+            potentialMarks.push({ val: val, index: match.index });
         }
     }
 
-    // 2. Proximity search (Bi-directional)
-    for (const [subject, keywords] of Object.entries(subjects)) {
-        let bestMark = null;
-        let minDistance = Infinity;
-
-        for (const kw of keywords) {
-            let kwIndex = lowerText.indexOf(kw);
-            while (kwIndex !== -1) {
-                // Search in a window around the keyword (300 chars before and after)
-                const nearbyNumbers = allNumbers.filter(n => Math.abs(n.index - kwIndex) < 400);
+    // 2. Inverse Proximity Search: For each potential mark, see what subject label is closest
+    potentialMarks.forEach(pm => {
+        for (const [subject, keywords] of Object.entries(subjects)) {
+            for (const kw of keywords) {
+                // Search for keyword in a wide window around the number (+/- 400 chars)
+                const windowStart = Math.max(0, pm.index - 400);
+                const windowEnd = Math.min(lowerText.length, pm.index + 400);
+                const windowText = lowerText.substring(windowStart, windowEnd);
                 
-                if (nearbyNumbers.length > 0) {
-                    // Priority: 3-digit totals (100-200)
-                    const threeDigits = nearbyNumbers.filter(n => n.val >= 100 && n.val <= 200);
-                    if (threeDigits.length > 0) {
-                        // Find the one closest to the keyword
-                        threeDigits.sort((a, b) => Math.abs(a.index - kwIndex) - Math.abs(b.index - kwIndex));
-                        const mark = threeDigits[0];
-                        const distance = Math.abs(mark.index - kwIndex);
-                        if (distance < minDistance) {
-                            minDistance = distance;
-                            bestMark = { raw: mark.val, pct: Math.round((mark.val / 200) * 100) };
+                if (windowText.includes(kw)) {
+                    const distance = Math.abs(lowerText.indexOf(kw, windowStart) - pm.index);
+                    
+                    // Priority: 3-digit marks (the "Total" column in Kerala marksheets)
+                    if (pm.val >= 100) {
+                        if (!marks[subject] || distance < marks[`${subject}_dist`]) {
+                            marks[subject] = Math.round((pm.val / 200) * 100);
+                            marks[`${subject}_raw`] = pm.val;
+                            marks[`${subject}_dist`] = distance;
                         }
                     } 
-                    // Fallback to 2-digit marks
-                    else if (!bestMark) {
-                        const twoDigits = nearbyNumbers.filter(n => n.val >= 30 && n.val < 100);
-                        if (twoDigits.length > 0) {
-                            twoDigits.sort((a, b) => Math.abs(a.index - kwIndex) - Math.abs(b.index - kwIndex));
-                            bestMark = { raw: null, pct: twoDigits[0].val };
+                    // Fallback to 2-digit marks if no 3-digit mark has been found for this subject yet
+                    else if (!marks[subject]) {
+                        if (!marks[subject] || distance < marks[`${subject}_dist`]) {
+                            marks[subject] = pm.val;
+                            marks[`${subject}_dist`] = distance;
                         }
                     }
                 }
-                kwIndex = lowerText.indexOf(kw, kwIndex + 1);
             }
         }
-
-        if (bestMark) {
-            marks[subject] = bestMark.pct;
-            if (bestMark.raw) marks[`${subject}_raw`] = bestMark.raw;
-        }
-    }
+    });
     
     // 3. Percentage sign fallback
     const percentMatch = text.match(/(\d{2,3})\s*%/g);
@@ -1054,6 +1042,7 @@ function extractSubjectMarks(text) {
     
     return marks;
 }
+
 
 
 
@@ -1207,9 +1196,9 @@ function preprocessImage(file) {
                 // Grayscale
                 const gray = 0.2126 * r + 0.7152 * g + 0.0722 * b;
 
-                // Simple Binarization (Boost contrast for text)
+                // Standard Binarization (Boost contrast for text)
                 // Threshold set to 128 (midpoint)
-                const val = gray > 140 ? 255 : 0; // Slightly higher threshold to clear gray backgrounds
+                const val = gray > 128 ? 255 : 0;
 
                 data[i] = val;
                 data[i + 1] = val;
