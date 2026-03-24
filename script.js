@@ -738,9 +738,8 @@ function handleResponse(text) {
                     <br>All documents processed and verified!
                 `, 'bot');
 
-                // Clear OCR results for next application
-                uploadedDocuments = [];
-                ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
+                // REMOVED CLEARING LOGIC FROM HERE
+                // It was wiping the OCR data before the email step
 
                 setTimeout(() => {
                     chatState = "AWAITING_EMAIL";
@@ -781,7 +780,12 @@ function handleResponse(text) {
             addMessage(finalMessage, 'bot');
         }, 1000);
         
+        
         applicantDetails = { name: "", phone: "", course: "", pcmPercent: "", email: "", documentsUploaded: false };
+
+        // Clear OCR results for next application now that we are done saving
+        uploadedDocuments = [];
+        ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
     }
 }
 
@@ -979,41 +983,47 @@ function extractSubjectMarks(text) {
     const subjects = {
         physics:   ['physics', 'phy', 'phys'],
         chemistry: ['chemistry', 'chem'],
-        maths:     ['mathematics', 'maths', 'math', 'mathematics-sci'],
+        maths:     ['mathematics', 'maths', 'math', 'mathematics-sci', 'mathematicssci'],
         english:   ['english', 'eng']
     };
     
     const marks = {};
-    const lines = text.split('\n');
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    // Helper: Find valid marks in a string
+    function findMarkInText(str) {
+        const numbers = (str.match(/\b(\d+)\b/g) || []).map(Number);
+        
+        // Priority 1: 3-digit Total out of 200 (Kerala board)
+        const threeDigit = numbers.filter(n => n >= 100 && n <= 200);
+        if (threeDigit.length > 0) {
+            const raw = threeDigit[threeDigit.length - 1];
+            return { raw: raw, pct: Math.round((raw / 200) * 100) };
+        }
+        
+        // Priority 2: 2-digit marks (CBSE style out of 100)
+        const twoDigit = numbers.filter(n => n >= 30 && n < 100);
+        if (twoDigit.length > 0) {
+            return { raw: null, pct: twoDigit[twoDigit.length - 1] };
+        }
+        
+        return null;
+    }
     
-    for (const line of lines) {
-        const lowerLine = line.toLowerCase();
+    for (let i = 0; i < lines.length; i++) {
+        const lowerLine = lines[i].toLowerCase();
         for (const [subject, keywords] of Object.entries(subjects)) {
             if (marks[subject]) continue; // already found
+            
             if (keywords.some(kw => lowerLine.includes(kw))) {
-                // Extract all numbers from this line
-                const numbers = (line.match(/\b(\d+)\b/g) || []).map(Number);
+                // Tesseract might split wide multi-column rows into multiple lines.
+                // We combine the current line with the next 3 lines to form a search window.
+                const window = lines.slice(i, Math.min(i + 4, lines.length)).join(' ');
                 
-                // Priority 1: Look for a total score out of 200 (3-digit, 50-200)
-                const totalsOut200 = numbers.filter(n => n >= 50 && n <= 200);
-                if (totalsOut200.length > 0) {
-                    // The Grand Total column is typically the last large 3-digit number
-                    // Filter to only 3-digit numbers for Kerala board
-                    const threeDigit = totalsOut200.filter(n => n >= 100 && n <= 200);
-                    if (threeDigit.length > 0) {
-                        // Take the last 3-digit number in the row (the Grand Total column)
-                        const rawTotal = threeDigit[threeDigit.length - 1];
-                        // Convert from /200 scale to percentage
-                        marks[subject] = Math.round((rawTotal / 200) * 100);
-                        marks[`${subject}_raw`] = rawTotal; // store raw too
-                        continue;
-                    }
-
-                    // Priority 2: 2-digit marks (out of 100 scale like CBSE)
-                    const twoDigit = totalsOut200.filter(n => n >= 30 && n < 100);
-                    if (twoDigit.length > 0) {
-                        marks[subject] = twoDigit[twoDigit.length - 1];
-                    }
+                const result = findMarkInText(window);
+                if (result) {
+                    marks[subject] = result.pct;
+                    if (result.raw) marks[`${subject}_raw`] = result.raw;
                 }
             }
         }
