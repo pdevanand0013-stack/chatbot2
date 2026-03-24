@@ -979,28 +979,29 @@ let ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
 //   - We look for the last 3-digit value >= 50 and <= 200 as it's the final score
 function extractSubjectMarks(text) {
     const subjects = {
-        physics:   ['physics', 'phy', 'phys'],
-        chemistry: ['chemistry', 'chem', 'chm'],
-        maths:     ['mathematics', 'maths', 'math', 'mat', 'mathematics-sci'],
-        english:   ['english', 'eng', 'engl']
+        physics:   ['physics', 'phy', 'phys', 'physis'],
+        chemistry: ['chemistry', 'chem', 'chm', 'chemi'],
+        maths:     ['mathematics', 'maths', 'math', 'mat', 'mathe', 'mathematics-sci', 'mathematicssci'],
+        english:   ['english', 'eng', 'engl', 'engli']
     };
     
     const marks = {};
-    const lowerText = text.toLowerCase();
+    // Clean text: Replace everything except alphanumeric with spaces to fix boundary issues (e.g. "Maths:143" or "|143|")
+    const cleanText = text.replace(/[^a-zA-Z0-9\s%]/g, ' ');
+    const lowerText = cleanText.toLowerCase();
     
-    // 1. Find all potential 3-digit totals (100-200) and 2-digit marks (30-100) in the text
-    // Store them with their character index
+    // 1. Find all 2-3 digit numbers
     const allNumbers = [];
-    const numRegex = /\b(\d{2,3})\b/g;
+    const numRegex = /(\d{2,3})/g;
     let match;
-    while ((match = numRegex.exec(text)) !== null) {
+    while ((match = numRegex.exec(cleanText)) !== null) {
         const val = parseInt(match[1]);
         if (val >= 30 && val <= 200) {
             allNumbers.push({ val: val, index: match.index });
         }
     }
 
-    // 2. For each subject, find its keywords and look for numbers appearing AFTER it
+    // 2. Proximity search (Bi-directional)
     for (const [subject, keywords] of Object.entries(subjects)) {
         let bestMark = null;
         let minDistance = Infinity;
@@ -1008,28 +1009,28 @@ function extractSubjectMarks(text) {
         for (const kw of keywords) {
             let kwIndex = lowerText.indexOf(kw);
             while (kwIndex !== -1) {
-                // Find potential numbers close to this keyword (within 500 characters)
-                const nearbyNumbers = allNumbers.filter(n => n.index > kwIndex && n.index < kwIndex + 500);
+                // Search in a window around the keyword (300 chars before and after)
+                const nearbyNumbers = allNumbers.filter(n => Math.abs(n.index - kwIndex) < 400);
                 
                 if (nearbyNumbers.length > 0) {
-                    // Priority: Look for 3-digit totals (100-200)
+                    // Priority: 3-digit totals (100-200)
                     const threeDigits = nearbyNumbers.filter(n => n.val >= 100 && n.val <= 200);
                     if (threeDigits.length > 0) {
-                        // Take the FIRST 3-digit number appearing after the subject name
-                        // which is usually the Grand Total for that subject in Kerala board
+                        // Find the one closest to the keyword
+                        threeDigits.sort((a, b) => Math.abs(a.index - kwIndex) - Math.abs(b.index - kwIndex));
                         const mark = threeDigits[0];
-                        const distance = mark.index - kwIndex;
+                        const distance = Math.abs(mark.index - kwIndex);
                         if (distance < minDistance) {
                             minDistance = distance;
                             bestMark = { raw: mark.val, pct: Math.round((mark.val / 200) * 100) };
                         }
                     } 
-                    // Fallback to 2-digit marks if no 3-digits found near this subject
+                    // Fallback to 2-digit marks
                     else if (!bestMark) {
                         const twoDigits = nearbyNumbers.filter(n => n.val >= 30 && n.val < 100);
                         if (twoDigits.length > 0) {
-                            const mark = twoDigits[0];
-                            bestMark = { raw: null, pct: mark.val };
+                            twoDigits.sort((a, b) => Math.abs(a.index - kwIndex) - Math.abs(b.index - kwIndex));
+                            bestMark = { raw: null, pct: twoDigits[0].val };
                         }
                     }
                 }
@@ -1043,7 +1044,7 @@ function extractSubjectMarks(text) {
         }
     }
     
-    // 3. Fallback: If still missing subjects, look for percentage signs (e.g. "85%")
+    // 3. Percentage sign fallback
     const percentMatch = text.match(/(\d{2,3})\s*%/g);
     if (percentMatch) {
         const percents = percentMatch.map(p => parseInt(p));
@@ -1053,6 +1054,7 @@ function extractSubjectMarks(text) {
     
     return marks;
 }
+
 
 
 // Helper: Calculate PCM percentage from extracted marks
