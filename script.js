@@ -778,14 +778,12 @@ function handleResponse(text) {
             }
 
             addMessage(finalMessage, 'bot');
-        }, 1000);
-        
-        
-        applicantDetails = { name: "", phone: "", course: "", pcmPercent: "", email: "", documentsUploaded: false };
 
-        // Clear OCR results for next application now that we are done saving
-        uploadedDocuments = [];
-        ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
+            // Reset state ONLY AFTER the save/email process is complete
+            applicantDetails = { name: "", phone: "", course: "", pcmPercent: "", email: "", documentsUploaded: false };
+            uploadedDocuments = [];
+            ocrResults = { extractedText: "", detectedPCM: null, subjectMarks: {} };
+        }, 1000);
     }
 }
 
